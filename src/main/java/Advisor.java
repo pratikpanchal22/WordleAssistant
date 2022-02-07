@@ -49,7 +49,7 @@ public class Advisor {
         return null;
     }
 
-    public List<WordScoreObject> getScoresOfWords(List<String> words){
+    public List<WordScoreObject> getAllWordScoreObjects(List<String> words){
         List<WordScoreObject> list = new ArrayList<>();
         for(String word : words){
             list.add(new WordScoreObject(word, wordScoreMap.get(word)));
@@ -61,6 +61,31 @@ public class Advisor {
         });
 
         return list;
+    }
+
+    public List<WordScoreObject> getWordScoreObjectsWithoutRepetitiveCharacters(List<String> words){
+        List<WordScoreObject> list = new ArrayList<>();
+        for(String word : words) if(!wordHasRepetitiveCharacters(word)){
+            list.add(new WordScoreObject(word, wordScoreMap.get(word)));
+        }
+
+        //sort list
+        Collections.sort(list, (a,b)-> {
+            return (Double.compare(b.score, a.score));
+        });
+
+        return list;
+    }
+
+    private boolean wordHasRepetitiveCharacters(String word){
+        HashSet<Character> set = new HashSet<>();
+        for(char c : word.toCharArray()){
+            if(set.contains(c)){
+                return true;
+            }
+            set.add(c);
+        }
+        return false;
     }
 
     private void computeScoreOfWords(List<String> words){

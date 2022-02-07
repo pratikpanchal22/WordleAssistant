@@ -26,8 +26,8 @@ public class Main {
         //Create new InputGrid
         InputGrid inputGrid = new InputGrid();
         inputGrid.addRow("arose","YBBBB");
-        inputGrid.addRow("latin","BYBBB");
-        inputGrid.addRow("champ","YGGBB");
+        //inputGrid.addRow("latin","BYBBB");
+        //inputGrid.addRow("champ","YGGBB");
 
         ComputationalInputs computationalInputs = new ComputationalInputs(inputGrid);
 
@@ -37,10 +37,14 @@ public class Main {
                 computationalInputs.getPositionalLocks(),
                 computationalInputs.getMandatoryInclusions());
 
-        System.out.println("Solution size:"+solution.size());
+        System.out.println("\nSolution size:"+solution.size());
         System.out.println(solution.toString());
-        System.out.println("Score based sorting of solution:");
-        System.out.println(advisor.getScoresOfWords(solution).toString());
+
+        System.out.println("\nScore based sorting of solution:");
+        System.out.println(advisor.getAllWordScoreObjects(solution).toString());
+
+        System.out.println("\nScore based sorting of solution without repetitive characters:");
+        System.out.println(advisor.getWordScoreObjectsWithoutRepetitiveCharacters(solution).toString());
     }
 
     private static List<String> compute(Node root, List<Character> exclusions,
@@ -61,33 +65,6 @@ public class Main {
                 inclusions[c-'a']=true;
             }
         }
-
-        //construct mandatoryInclusions array from positionalExclusions
-        /**
-         * positionalExclusions are positions at which the given characters
-         * do not exist - but they exist at other locations
-         * positionalLocks are the positions at which the given characters
-         * is locked (exists in final word)
-         *
-         * So, to construct mandatoryInclusions list, we start by adding all
-         * the characters from positionalLocks
-         */
-//        List<Character> mandatoryInclusions = new ArrayList<>();
-//        Set<Character> mandatoryInclusionsSet = new HashSet<>();
-//        for(int i=0; i<positionalExclusions.length; i++){
-//            for(char c : positionalExclusions[i]){
-//                mandatoryInclusionsSet.add(c);
-//            }
-//        }
-//        for(char c : mandatoryInclusionsSet){
-//            mandatoryInclusions.add(c);
-//        }
-//        System.out.println("mandatoryInclusions W/O positionalLocks:"+mandatoryInclusions.toString());
-//        //add characters from positionalLocks
-//        for(char c : positionalLocks) if(c!='\0'){
-//            mandatoryInclusions.add(c);
-//        }
-//        System.out.println("mandatoryInclusions:"+mandatoryInclusions.toString());
 
         //Prepare for recursion
         List<String> list = new ArrayList<>();
