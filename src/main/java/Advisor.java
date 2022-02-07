@@ -57,8 +57,13 @@ public class Advisor {
 
         //sort list
         Collections.sort(list, (a,b)-> {
-            return (Double.compare(b.score, a.score));
+            return (Double.compare(b.getScore(), a.getScore()));
         });
+
+        //Populate rank
+        for(int i=0; i<list.size(); i++){
+            list.get(i).setRank(i+1);
+        }
 
         return list;
     }
@@ -71,8 +76,13 @@ public class Advisor {
 
         //sort list
         Collections.sort(list, (a,b)-> {
-            return (Double.compare(b.score, a.score));
+            return (Double.compare(b.getScore(), a.getScore()));
         });
+
+        //Populate rank
+        for(int i=0; i<list.size(); i++){
+            list.get(i).setRank(i+1);
+        }
 
         return list;
     }
