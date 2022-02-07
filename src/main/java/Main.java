@@ -7,7 +7,6 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-	// write your code here
 
         System.out.println("user directory: " + System.getProperty("user.dir"));
 
@@ -25,9 +24,11 @@ public class Main {
 
         //Create new InputGrid
         InputGrid inputGrid = new InputGrid();
-        inputGrid.addRow("arose","YBBBB");
-        //inputGrid.addRow("latin","BYBBB");
-        //inputGrid.addRow("champ","YGGBB");
+//        inputGrid.addRow("arose","YBBYB");
+//        inputGrid.addRow("tails","BYBBG");
+//        inputGrid.addRow("chaps","BBGBG");
+//        inputGrid.addRow("gnaws","BBGBG");
+
 
         ComputationalInputs computationalInputs = new ComputationalInputs(inputGrid);
 
@@ -88,7 +89,7 @@ public class Main {
         if(idx==5){
 
             /**
-             * We have constructed a 5 letter word (candidate) at this point
+             * We have constructed a 5 character word (candidate) at this point
              * If this candidate has all the characters that are listed in
              * mandatoryInclusions list, add the candidate to our final list
              *
