@@ -60,9 +60,9 @@ public class ComputationalInputs {
         }
         positionalExclusionMap = new HashMap<>();
 
-        this.generateGlobalExclusionList();
+        //this.generateGlobalExclusionList();
         //this.generatePositionalLocks();
-        this.generatePositionalExclusionListAndPositionalLocks();
+        this.generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList();
     }
 
     private void generateGlobalExclusionList(){
@@ -77,7 +77,7 @@ public class ComputationalInputs {
         }
     }
 
-    private void generatePositionalExclusionListAndPositionalLocks(){
+    private void generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList(){
 
         for(int i=0; i<this.inputGrid.grid.size(); i++){
             char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
@@ -101,12 +101,14 @@ public class ComputationalInputs {
             /**
              * Then, evaluate the green characters (i.e. the ones that are positionally correct)
              */
+            HashSet<Character> charsThatAreGreenInThisRow = new HashSet<>();
             for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_GREEN){
                 //TODO: Get rid of magic char below
                 if(positionalLocks[j]!='\0' && positionalLocks[j]!=charRow[j]){
                     throw new InputMismatchException("Positional Lock is already occupied with character:"+positionalLocks[j] + " and an attempt was made to overwrite it with a new character: "+charRow[j] + " from input row:"+i+"\nOffending Input row: charRow"+Arrays.toString(charRow)+" colorRow:"+Arrays.toString(colorRow));
                 }
                 positionalLocks[j] = charRow[j];
+                charsThatAreGreenInThisRow.add(charRow[j]);
 
                 /**
                  * add this to mandatoryInclusions if
@@ -125,6 +127,15 @@ public class ComputationalInputs {
                     mandatoryInclusions.add(charRow[j]);
                 }
                 positionalLockAlreadyCountedForMandatoryInclusions[j]=true;
+            }
+
+            /**
+             * And finally, evaluate the black characters (i.e. the ones that are not present in the final word)
+             */
+            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_BLACK){
+                if(!charsThatAreGreenInThisRow.contains(charRow[j]) && !charsThatAreYellowInThisRow.contains(charRow[j])){
+                    this.globalExclusions.add(charRow[j]);
+                }
             }
         }
     }
