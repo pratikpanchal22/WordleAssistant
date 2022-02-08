@@ -24,9 +24,9 @@ public class Main {
 
         //Create new InputGrid
         InputGrid inputGrid = new InputGrid();
-//        inputGrid.addRow("arose","YBBYB");
-//        inputGrid.addRow("tails","BYBBG");
-//        inputGrid.addRow("chaps","BBGBG");
+        inputGrid.addRow("arose","BBBBG");
+        inputGrid.addRow("tilde","BBGYG");
+//        inputGrid.addRow("laird","YBGGB");
 //        inputGrid.addRow("gnaws","BBGBG");
 
 
@@ -38,14 +38,12 @@ public class Main {
                 computationalInputs.getPositionalLocks(),
                 computationalInputs.getMandatoryInclusions());
 
-        System.out.println("\nSolution size:"+solution.size());
-        System.out.println(solution.toString());
-
-        System.out.println("\nScore based sorting of solution:");
+        System.out.println("\nRanked solution with scores: Total size:"+solution.size());
         System.out.println(advisor.getAllWordScoreObjects(solution).toString());
 
-        System.out.println("\nScore based sorting of solution without repetitive characters:");
-        System.out.println(advisor.getWordScoreObjectsWithoutRepetitiveCharacters(solution).toString());
+        List<WordScoreObject> wordScoreObjects = advisor.getWordScoreObjectsWithoutRepetitiveCharacters(solution);
+        System.out.println("\nRanked solution with scores (unique characters only): Size:"+ wordScoreObjects.size());
+        System.out.println(wordScoreObjects.toString());
     }
 
     private static List<String> compute(Node root, List<Character> exclusions,
