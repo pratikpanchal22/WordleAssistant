@@ -13,7 +13,7 @@ public class ComputationalInputs {
      * word
      * In Wordle, these letters appear in BLACK
      */
-    private List<Character> globalExclusions;
+    private Set<Character> globalExclusions;
 
     /**
      * positionalExclusions
@@ -51,7 +51,7 @@ public class ComputationalInputs {
 
     public ComputationalInputs(InputGrid inputGrid) {
         this.inputGrid = inputGrid;
-        this.globalExclusions = new ArrayList<>();
+        this.globalExclusions = new HashSet<>();
         this.maxCharacterCount = new HashMap<>();
         this.mandatoryInclusions = new ArrayList<>();
 
@@ -68,21 +68,7 @@ public class ComputationalInputs {
         }
         positionalExclusionMap = new HashMap<>();
 
-        //this.generateGlobalExclusionList();
-        //this.generatePositionalLocks();
         this.generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList();
-    }
-
-    private void generateGlobalExclusionList(){
-
-        for(int i=0; i<this.inputGrid.grid.size(); i++){
-            char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
-            char[] colorRow = this.inputGrid.grid.get(i)[InputGrid.COLOR_ARRAY_IDX];
-
-            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_BLACK){
-                this.globalExclusions.add(charRow[j]);
-            }
-        }
     }
 
     private void generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList(){
@@ -170,35 +156,26 @@ public class ComputationalInputs {
         this.mandatoryInclusions.add(c);
     }
 
+    //////////////////////////////////////////
     //Getters
-
-    public List<Character> getGlobalExclusions() {
-        System.out.println("globalExclusions:"+globalExclusions.toString());
+    //////////////////////////////////////////
+    public Set<Character> getGlobalExclusions() {
         return globalExclusions;
     }
 
     public Set<Character>[] getPositionalExclusions() {
-        System.out.println("positionalExclusions:");
-        int idx=0;
-        for(Set<Character> set : positionalExclusions){
-            System.out.println("idx:"+idx+":" +set.toString());
-            ++idx;
-        }
         return positionalExclusions;
     }
 
     public char[] getPositionalLocks() {
-        System.out.println("positionalLocks:"+Arrays.toString(positionalLocks));
         return positionalLocks;
     }
 
     public List<Character> getMandatoryInclusions() {
-        System.out.println("mandatoryInclusions:"+mandatoryInclusions.toString());
         return mandatoryInclusions;
     }
 
     public HashMap<Character, Integer> getMaxCharacterCount() {
-        System.out.println("maxCharacterCount:"+maxCharacterCount.toString());
         return maxCharacterCount;
     }
 }

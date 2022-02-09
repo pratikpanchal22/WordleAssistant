@@ -30,20 +30,14 @@ public class Main {
 
         //Create new InputGrid
         InputGrid inputGrid = new InputGrid();
-        inputGrid.addRow("eeabc","YBBBB");
-//        inputGrid.addRow("spire","BBGGB");
+        inputGrid.addRow("arose","BBYBB");
+        inputGrid.addRow("pilot","BYBGB");
 //        inputGrid.addRow("crane","BGGBG");
 //        inputGrid.addRow("drape","BGGBG");
 
-
         ComputationalInputs computationalInputs = new ComputationalInputs(inputGrid);
 
-        List<String> solution = compute(root,
-                computationalInputs.getGlobalExclusions(),
-                computationalInputs.getPositionalExclusions(),
-                computationalInputs.getPositionalLocks(),
-                computationalInputs.getMandatoryInclusions(),
-                computationalInputs.getMaxCharacterCount());
+        List<String> solution = compute(root, computationalInputs);
 
         System.out.println("\nRanked solution with scores: Total size:"+solution.size());
         System.out.println(advisor.getAllWordScoreObjects(solution).toString());
@@ -53,24 +47,12 @@ public class Main {
         System.out.println(wordScoreObjects.toString());
     }
 
-    private static List<String> compute(Node root, List<Character> exclusions,
-                                        Set<Character>[] positionalExclusions,
-                                        char[] positionalLocks,
-                                        List<Character> mandatoryInclusions,
-                                        HashMap<Character,Integer> maxCharacterCount){
+    private static List<String> compute(Node root, ComputationalInputs computationalInputs){
 
         //validations
-        if(root==null || exclusions==null || positionalExclusions==null || positionalLocks==null){
+        if(root==null || computationalInputs.getGlobalExclusions()==null ||
+                computationalInputs.getPositionalExclusions()==null || computationalInputs.getPositionalLocks()==null){
             throw new IllegalArgumentException("Input is invalid");
-        }
-
-        //compute inclusions from exclusions
-        boolean[] inclusions = new boolean[26];
-        Set<Character> excludedChars = new HashSet<>(exclusions);
-        for(char c='a'; c<='z'; c++){
-            if(!excludedChars.contains(c)){
-                inclusions[c-'a']=true;
-            }
         }
 
         //Prepare for recursion
@@ -79,19 +61,12 @@ public class Main {
         Queue<Node> q = new LinkedList<>();
         q.add(root);
 
-        computeRecursively(positionalLocks, inclusions, q, positionalExclusions, list, mandatoryInclusions, maxCharacterCount, candidate, 0);
+        computeRecursively(q, list, candidate, 0, computationalInputs);
         return list;
     }
 
-    private static void computeRecursively(char[] positionalLocks,
-                                    boolean[] inclusions,
-                                    Queue<Node> q,
-                                    Set<Character>[] positionalExclusions,
-                                    List<String> list,
-                                    List<Character> mandatoryInclusions,
-                                    HashMap<Character,Integer> maxCharacterCount,
-                                    char[] candidate,
-                                    int idx ){
+    private static void computeRecursively(Queue<Node> q, List<String> list, char[] candidate,
+                                    int idx, ComputationalInputs ci){
         //base case
         if(idx==5){
 
@@ -113,17 +88,17 @@ public class Main {
             }
 
             //check if candidate complies with maxCharacterCount
-            for(char key : maxCharacterCount.keySet()){
-                if(candidateLetterCount[(int)(key-'a')]>maxCharacterCount.get(key)){
+            for(char key : ci.getMaxCharacterCount().keySet()){
+                if(candidateLetterCount[(int)(key-'a')]>ci.getMaxCharacterCount().get(key)){
                     System.out.println("Rejecting due to over abundance of character: "+key+". Allowed:"+
-                            maxCharacterCount.get(key) + " Actual:"+candidateLetterCount[key-'a']
+                            ci.getMaxCharacterCount().get(key) + " Actual:"+candidateLetterCount[key-'a']
                             +" :"+String.valueOf(candidate));
                     return;
                 }
             }
 
             //check if candidate complies with mandatoryInclusions
-            for(char c : mandatoryInclusions){
+            for(char c : ci.getMandatoryInclusions()){
                 if(candidateLetterCount[c-'a']==0){
                     System.out.println("Rejecting due to missing mandatory inclusion: '"+c+"'. "+String.valueOf(candidate));
                     return;
@@ -149,27 +124,21 @@ public class Main {
              *     (a) belongs to inclusions, and
              *     (b) does not belong to positionalExclusions
              */
-            if(positionalLocks[idx]!='\0'){
+            if(ci.getPositionalLocks()[idx]!='\0'){
                 //there can be only 1 letter here which is positionalLocks[idx]
-                candidate[idx]=positionalLocks[idx];
+                candidate[idx]=ci.getPositionalLocks()[idx];
                 if(n.next[candidate[idx]-'a']!=null){
                     q.add(n.next[candidate[idx]-'a']);
-                    computeRecursively(positionalLocks, inclusions, q,
-                            positionalExclusions, list,
-                            mandatoryInclusions, maxCharacterCount,
-                            candidate, idx+1);
+                    computeRecursively(q, list, candidate, idx+1, ci);
                 }
             }
             else {
                 //check inclusions & positionalExclusions
-                for(int i=0; i<inclusions.length; i++) if(inclusions[i] && !positionalExclusions[idx].contains((char)(i+'a'))) {
+                for(int i=0; i<26; i++) if(!ci.getGlobalExclusions().contains((char)(i+'a')) && !ci.getPositionalExclusions()[idx].contains((char)(i+'a'))) {
                     if(n.next[i]!=null){
                         candidate[idx]=n.next[i].c;
                         q.add(n.next[i]);
-                        computeRecursively(positionalLocks, inclusions, q,
-                                positionalExclusions, list,
-                                mandatoryInclusions, maxCharacterCount,
-                                candidate, idx+1);
+                        computeRecursively(q, list, candidate, idx+1, ci);
                     }
                 }
             }
