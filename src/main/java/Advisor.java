@@ -13,6 +13,21 @@ public class Advisor {
         this.wordScoreMap = new HashMap<>();
     }
 
+    public List<String> getWordsWithAtleastKCharacterFrequency(int k){
+        List<String> list = new ArrayList<>();
+        for(String word : words){
+            HashMap<Character, Integer> map = new HashMap<>();
+            for(int i=0; i<word.length(); i++){
+                map.put(word.charAt(i), map.getOrDefault(word.charAt(i),0)+1);
+                if(map.get(word.charAt(i))>=k){
+                    list.add(word);
+                    break;
+                }
+            }
+        }
+        return list;
+    }
+
     public List<Character> getKMostUsedCharacters(int k){
 
         int[] frequency = new int[26];

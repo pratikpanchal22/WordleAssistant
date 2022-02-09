@@ -39,13 +39,21 @@ public class ComputationalInputs {
      * These inclused the characters from positionalLocks, and
      * positionalExclusions with correct frequency
      */
-    private List<Character> mandatoryInclusions = new ArrayList<>();
+    private List<Character> mandatoryInclusions;
+
+    /**
+     * maxCharacterCount:::HashMap<Character,Integer>
+     * These are maximum number of characters that could be in the final word
+     */
+    private HashMap<Character,Integer> maxCharacterCount;
 
     private InputGrid inputGrid;
 
     public ComputationalInputs(InputGrid inputGrid) {
         this.inputGrid = inputGrid;
         this.globalExclusions = new ArrayList<>();
+        this.maxCharacterCount = new HashMap<>();
+        this.mandatoryInclusions = new ArrayList<>();
 
         //TODO: Get rid of magic number below
         this.positionalLocks = new char[5];
@@ -60,9 +68,9 @@ public class ComputationalInputs {
         }
         positionalExclusionMap = new HashMap<>();
 
-        this.generateGlobalExclusionList();
+        //this.generateGlobalExclusionList();
         //this.generatePositionalLocks();
-        this.generatePositionalExclusionListAndPositionalLocks();
+        this.generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList();
     }
 
     private void generateGlobalExclusionList(){
@@ -77,7 +85,7 @@ public class ComputationalInputs {
         }
     }
 
-    private void generatePositionalExclusionListAndPositionalLocks(){
+    private void generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList(){
 
         for(int i=0; i<this.inputGrid.grid.size(); i++){
             char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
@@ -101,12 +109,14 @@ public class ComputationalInputs {
             /**
              * Then, evaluate the green characters (i.e. the ones that are positionally correct)
              */
+            HashSet<Character> charsThatAreGreenInThisRow = new HashSet<>();
             for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_GREEN){
                 //TODO: Get rid of magic char below
                 if(positionalLocks[j]!='\0' && positionalLocks[j]!=charRow[j]){
                     throw new InputMismatchException("Positional Lock is already occupied with character:"+positionalLocks[j] + " and an attempt was made to overwrite it with a new character: "+charRow[j] + " from input row:"+i+"\nOffending Input row: charRow"+Arrays.toString(charRow)+" colorRow:"+Arrays.toString(colorRow));
                 }
                 positionalLocks[j] = charRow[j];
+                charsThatAreGreenInThisRow.add(charRow[j]);
 
                 /**
                  * add this to mandatoryInclusions if
@@ -125,6 +135,30 @@ public class ComputationalInputs {
                     mandatoryInclusions.add(charRow[j]);
                 }
                 positionalLockAlreadyCountedForMandatoryInclusions[j]=true;
+            }
+
+            /**
+             * And finally, evaluate the black characters (i.e. the ones that are not present in the final word)
+             */
+            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_BLACK){
+                if(!charsThatAreGreenInThisRow.contains(charRow[j]) && !charsThatAreYellowInThisRow.contains(charRow[j])){
+                    this.globalExclusions.add(charRow[j]);
+                }else {
+                    /**
+                     * if here: This character is marked as not present (black) in the final word even though
+                     * there are other instances of it that are either YELLOW or GREEN in this same row.
+                     * That means, we have found the maximum frequency of this character that is allowed in the final
+                     * word.
+                     * The maximum frequency is the frequency of this character in mandatoryInclusions list
+                     */
+                    int freq=0;
+                    for(char c : mandatoryInclusions){
+                        if(c==charRow[j]){
+                            freq++;
+                        }
+                    }
+                    maxCharacterCount.put(charRow[j], freq);
+                }
             }
         }
     }
@@ -161,5 +195,10 @@ public class ComputationalInputs {
     public List<Character> getMandatoryInclusions() {
         System.out.println("mandatoryInclusions:"+mandatoryInclusions.toString());
         return mandatoryInclusions;
+    }
+
+    public HashMap<Character, Integer> getMaxCharacterCount() {
+        System.out.println("maxCharacterCount:"+maxCharacterCount.toString());
+        return maxCharacterCount;
     }
 }
