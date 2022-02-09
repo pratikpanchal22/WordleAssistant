@@ -18,16 +18,22 @@ public class Main {
         //Advisor
         Advisor advisor = new Advisor(words);
         List<Character> l = advisor.getKMostUsedCharacters(26);
+        System.out.println("\nList of words with atleast 2 repetitive chars:\n"+
+                advisor.getWordsWithAtleastKCharacterFrequency(2).toString()+"\n");
+        System.out.println("\nList of words with atleast 3 repetitive chars:\n"+
+                advisor.getWordsWithAtleastKCharacterFrequency(3).toString()+"\n");
+        System.out.println("\nList of words with atleast 4 repetitive chars:\n"+
+                advisor.getWordsWithAtleastKCharacterFrequency(4).toString()+"\n");
 
         //Create Trie
         Node root = Trie.addWordsToTrie(words);
 
         //Create new InputGrid
         InputGrid inputGrid = new InputGrid();
-        inputGrid.addRow("arose","BBBBG");
-        inputGrid.addRow("tilde","BBGYG");
-//        inputGrid.addRow("laird","YBGGB");
-//        inputGrid.addRow("gnaws","BBGBG");
+        inputGrid.addRow("eeabc","YBBBB");
+//        inputGrid.addRow("spire","BBGGB");
+//        inputGrid.addRow("crane","BGGBG");
+//        inputGrid.addRow("drape","BGGBG");
 
 
         ComputationalInputs computationalInputs = new ComputationalInputs(inputGrid);
@@ -36,7 +42,8 @@ public class Main {
                 computationalInputs.getGlobalExclusions(),
                 computationalInputs.getPositionalExclusions(),
                 computationalInputs.getPositionalLocks(),
-                computationalInputs.getMandatoryInclusions());
+                computationalInputs.getMandatoryInclusions(),
+                computationalInputs.getMaxCharacterCount());
 
         System.out.println("\nRanked solution with scores: Total size:"+solution.size());
         System.out.println(advisor.getAllWordScoreObjects(solution).toString());
@@ -49,7 +56,8 @@ public class Main {
     private static List<String> compute(Node root, List<Character> exclusions,
                                         Set<Character>[] positionalExclusions,
                                         char[] positionalLocks,
-                                        List<Character> mandatoryInclusions){
+                                        List<Character> mandatoryInclusions,
+                                        HashMap<Character,Integer> maxCharacterCount){
 
         //validations
         if(root==null || exclusions==null || positionalExclusions==null || positionalLocks==null){
@@ -71,7 +79,7 @@ public class Main {
         Queue<Node> q = new LinkedList<>();
         q.add(root);
 
-        computeRecursively(positionalLocks, inclusions, q, positionalExclusions, list, mandatoryInclusions, candidate, 0);
+        computeRecursively(positionalLocks, inclusions, q, positionalExclusions, list, mandatoryInclusions, maxCharacterCount, candidate, 0);
         return list;
     }
 
@@ -81,6 +89,7 @@ public class Main {
                                     Set<Character>[] positionalExclusions,
                                     List<String> list,
                                     List<Character> mandatoryInclusions,
+                                    HashMap<Character,Integer> maxCharacterCount,
                                     char[] candidate,
                                     int idx ){
         //base case
@@ -103,9 +112,20 @@ public class Main {
                 candidateLetterCount[c-'a']++;
             }
 
+            //check if candidate complies with maxCharacterCount
+            for(char key : maxCharacterCount.keySet()){
+                if(candidateLetterCount[(int)(key-'a')]>maxCharacterCount.get(key)){
+                    System.out.println("Rejecting due to over abundance of character: "+key+". Allowed:"+
+                            maxCharacterCount.get(key) + " Actual:"+candidateLetterCount[key-'a']
+                            +" :"+String.valueOf(candidate));
+                    return;
+                }
+            }
+
+            //check if candidate complies with mandatoryInclusions
             for(char c : mandatoryInclusions){
                 if(candidateLetterCount[c-'a']==0){
-                    System.out.println("Rejecting: "+String.valueOf(candidate));
+                    System.out.println("Rejecting due to missing mandatory inclusion: '"+c+"'. "+String.valueOf(candidate));
                     return;
                 }
                 --candidateLetterCount[c-'a'];
@@ -136,7 +156,8 @@ public class Main {
                     q.add(n.next[candidate[idx]-'a']);
                     computeRecursively(positionalLocks, inclusions, q,
                             positionalExclusions, list,
-                            mandatoryInclusions, candidate, idx+1);
+                            mandatoryInclusions, maxCharacterCount,
+                            candidate, idx+1);
                 }
             }
             else {
@@ -147,7 +168,8 @@ public class Main {
                         q.add(n.next[i]);
                         computeRecursively(positionalLocks, inclusions, q,
                                 positionalExclusions, list,
-                                mandatoryInclusions, candidate, idx+1);
+                                mandatoryInclusions, maxCharacterCount,
+                                candidate, idx+1);
                     }
                 }
             }
