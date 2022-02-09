@@ -1,18 +1,18 @@
 //package com.example.idea;
 
-public class Node {
+public class TrieNode {
     char c;
     boolean endsHere;
     int numberOfBranches;
-    Node[] next;
+    TrieNode[] next;
 
-    public Node() {
+    public TrieNode() {
         this.endsHere=false;
         this.numberOfBranches=0;
-        next = new Node[26];
+        next = new TrieNode[26];
     }
 
-    public Node(char c) {
+    public TrieNode(char c) {
         this();
         this.c = c;
     }

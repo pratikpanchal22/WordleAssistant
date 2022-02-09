@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class ComputationalEngine {
-    public List<String> compute(Node root, ComputationalInputs computationalInputs){
+    public List<String> compute(TrieNode root, ComputationalInputs computationalInputs){
 
         //validations
         if(root==null ||
@@ -17,15 +17,15 @@ public class ComputationalEngine {
         //Prepare for recursion
         List<String> list = new ArrayList<>();
         char[] candidate = new char[5];
-        Queue<Node> q = new LinkedList<>();
+        Queue<TrieNode> q = new LinkedList<>();
         q.add(root);
 
         computeRecursively(q, list, candidate, 0, computationalInputs);
         return list;
     }
 
-    private void computeRecursively(Queue<Node> q, List<String> list, char[] candidate,
-                                           int idx, ComputationalInputs ci){
+    private void computeRecursively(Queue<TrieNode> q, List<String> list, char[] candidate,
+                                    int idx, ComputationalInputs ci){
         //base case
         if(idx==5){
 
@@ -72,7 +72,7 @@ public class ComputationalEngine {
         //core
         int size = q.size();
         while(size-- > 0){
-            Node n = q.remove();
+            TrieNode n = q.remove();
 
             /**
              * At each idx,

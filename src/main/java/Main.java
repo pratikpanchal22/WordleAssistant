@@ -26,7 +26,7 @@ public class Main {
                 advisor.getWordsWithAtleastKCharacterFrequency(4).toString()+"\n");
 
         //Create Trie
-        Node root = Trie.addWordsToTrie(words);
+        TrieNode root = Trie.addWordsToTrie(words);
 
         //Create new InputGrid
         InputGrid inputGrid = new InputGrid();

@@ -9,13 +9,13 @@ import java.util.Queue;
 
 public class Trie {
 
-    public static Node addWordsToTrie(@NotNull List<String> words){
-        Node root = new Node();
+    public static TrieNode addWordsToTrie(@NotNull List<String> words){
+        TrieNode root = new TrieNode();
         for(String word : words){
             addWord(word, root);
         }
 
-        Queue<Node> q = new LinkedList<>();
+        Queue<TrieNode> q = new LinkedList<>();
         q.add(root);
         int level=0;
         while(q.size()>0){
@@ -23,14 +23,14 @@ public class Trie {
             int numOfBranches=0;
             int[] countMap = new int[26];
             while(size-- > 0){
-                Node n = q.remove();
+                TrieNode n = q.remove();
                 if(n==null){
                     continue;
                 }
                 numOfBranches+= n.numberOfBranches;
 
                 //add all next nodes to queue
-                for(Node nxt : n.next) if(nxt!=null){
+                for(TrieNode nxt : n.next) if(nxt!=null){
                     countMap[nxt.c-'a']++;
                     q.add(nxt);
                 }
@@ -43,14 +43,14 @@ public class Trie {
         return root;
     }
 
-    private static void addWord(String word, Node n){
+    private static void addWord(String word, TrieNode n){
 
-        Node runner = n;
+        TrieNode runner = n;
         for(int i=0; i<word.length(); i++){
 
             int idx = word.charAt(i) - 'a';
             if(runner.next[idx]==null){
-                runner.next[idx]=new Node();
+                runner.next[idx]=new TrieNode();
             }
             runner = runner.next[idx];
 
