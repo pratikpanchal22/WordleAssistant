@@ -1,4 +1,4 @@
-//package com.example.idea;
+package com.pratikpanchal.wordle.wordpredictor;//package com.example.idea;
 
 import org.jetbrains.annotations.NotNull;
 

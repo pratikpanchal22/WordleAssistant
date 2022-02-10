@@ -1,4 +1,4 @@
-package tools;
+package com.pratikpanchal.wordle.tools;
 
 import java.io.*;
 import java.util.ArrayList;

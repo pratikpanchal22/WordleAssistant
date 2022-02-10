@@ -1,4 +1,4 @@
-//package com.example.idea;
+package com.pratikpanchal.wordle.wordpredictor;//package com.example.idea;
 
 public class TrieNode {
     char c;

@@ -1,3 +1,5 @@
+package com.pratikpanchal.wordle.wordpredictor;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +31,8 @@ public class ComputationalEngine {
         //base case
         if(idx==5){
 
+//            System.out.println("mandatory inclusions:"+ci.getMandatoryInclusions().toString());
+
             /**
              * We have constructed a 5 character word (candidate) at this point
              * If this candidate has all the characters that are listed in
@@ -49,9 +53,9 @@ public class ComputationalEngine {
             //check if candidate complies with maxCharacterCount
             for(char key : ci.getMaxCharacterCount().keySet()){
                 if(candidateLetterCount[(int)(key-'a')]>ci.getMaxCharacterCount().get(key)){
-                    System.out.println("Rejecting due to over abundance of character: "+key+". Allowed:"+
-                            ci.getMaxCharacterCount().get(key) + " Actual:"+candidateLetterCount[key-'a']
-                            +" :"+String.valueOf(candidate));
+//                    System.out.println("Rejecting due to over abundance of character: "+key+". Allowed:"+
+//                            ci.getMaxCharacterCount().get(key) + " Actual:"+candidateLetterCount[key-'a']
+//                            +" :"+String.valueOf(candidate));
                     return;
                 }
             }
@@ -59,7 +63,7 @@ public class ComputationalEngine {
             //check if candidate complies with mandatoryInclusions
             for(char c : ci.getMandatoryInclusions()){
                 if(candidateLetterCount[c-'a']==0){
-                    System.out.println("Rejecting due to missing mandatory inclusion: '"+c+"'. "+String.valueOf(candidate));
+//                    System.out.println("Rejecting due to missing mandatory inclusion: '"+c+"'. "+String.valueOf(candidate));
                     return;
                 }
                 --candidateLetterCount[c-'a'];
@@ -78,7 +82,7 @@ public class ComputationalEngine {
              * At each idx,
              * (1) we first check the positionalLocks array
              * If there is a character at the desired idx, we go down that particular
-             * node in the Trie
+             * node in the com.pratikpanchal.wordle.wordpredictor.Trie
              * (2) Otherwise, we have to consider every node that
              *     (a) belongs to inclusions, and
              *     (b) does not belong to positionalExclusions

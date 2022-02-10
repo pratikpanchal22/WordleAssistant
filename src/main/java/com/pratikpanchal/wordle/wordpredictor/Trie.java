@@ -1,4 +1,4 @@
-//package com.example.idea;
+package com.pratikpanchal.wordle.wordpredictor;//package com.example.idea;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -35,8 +35,8 @@ public class Trie {
                     q.add(nxt);
                 }
             }
-            System.out.println("Level: "+level + " number of branches:"+ numOfBranches);
-            System.out.println("CountMap:"+ Arrays.toString(countMap));
+//            System.out.println("Level: "+level + " number of branches:"+ numOfBranches);
+//            System.out.println("CountMap:"+ Arrays.toString(countMap));
             ++level;
         }
 

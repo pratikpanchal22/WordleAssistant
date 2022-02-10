@@ -1,4 +1,4 @@
-//package com.example.idea;
+package com.pratikpanchal.wordle.wordpredictor;//package com.example.idea;
 import java.util.*;
 
 public class Advisor {
@@ -44,17 +44,17 @@ public class Advisor {
                 }
         );
 
-        System.out.println("Letter frequency");
+//        System.out.println("Letter frequency");
         for(int i=0; i<frequency.length; i++){
             charPercentage.put((char)(i+'a'), (double)(frequency[i]*100)/totalChars);
-            System.out.println((char)(i+'a')+ " f="+frequency[i] + " percentage:"+charPercentage.get((char)(i+'a')));
+//            System.out.println((char)(i+'a')+ " f="+frequency[i] + " percentage:"+charPercentage.get((char)(i+'a')));
             pq.add(new int[]{frequency[i], i+'a'});
             if(pq.size()>k){
                 pq.remove();
             }
         }
 
-        System.out.println("\n"+k+" MOST FREQUENT CHARS");
+//        System.out.println("\n"+k+" MOST FREQUENT CHARS");
         while(pq.size()>0){
             int[] n = pq.remove();
             System.out.println((char)n[1]+ " frequency="+n[0] + " percentage:"+charPercentage.get((char)(n[1])));
@@ -100,6 +100,23 @@ public class Advisor {
         }
 
         return list;
+    }
+
+    public String suggestASolution(List<String> sols){
+        List<WordScoreObject> listOfWordScoreObjs;
+
+        listOfWordScoreObjs = getWordScoreObjectsWithoutRepetitiveCharacters(sols);
+        if(listOfWordScoreObjs.size()>0){
+            return listOfWordScoreObjs.get(0).getWord();
+        }
+
+        listOfWordScoreObjs = getAllWordScoreObjects(sols);
+        if(listOfWordScoreObjs.size()>0){
+            return listOfWordScoreObjs.get(0).getWord();
+        }
+
+        //no solution
+        return null;
     }
 
     private boolean wordHasRepetitiveCharacters(String word){

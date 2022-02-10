@@ -1,3 +1,5 @@
+package com.pratikpanchal.wordle.wordpredictor;
+
 import java.util.*;
 
 public class ComputationalInputs {
@@ -73,6 +75,7 @@ public class ComputationalInputs {
 
     private void generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList(){
 
+        HashMap<Character, Integer> charMandatoryInclusionCountMap = new HashMap<>();
         for(int i=0; i<this.inputGrid.grid.size(); i++){
             char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
             char[] colorRow = this.inputGrid.grid.get(i)[InputGrid.COLOR_ARRAY_IDX];
@@ -81,6 +84,7 @@ public class ComputationalInputs {
              * Start with evaluating the yellow characters (i.e. the ones that are positionally incorrect)
              */
             HashSet<Character> charsThatAreYellowInThisRow = new HashSet<>();
+            HashMap<Character,Integer> charsThatAreYellowInThisRowMap = new HashMap<>();
             for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_YELLOW){
                 positionalExclusions[j].add(charRow[j]);
                 if(!positionalExclusionMap.containsKey(charRow[j])){
@@ -90,12 +94,14 @@ public class ComputationalInputs {
                 positionalExclusionMap.get(charRow[j]).add(j);
 
                 charsThatAreYellowInThisRow.add(charRow[j]);
+                charsThatAreYellowInThisRowMap.put(charRow[j], charsThatAreYellowInThisRowMap.getOrDefault(charRow[j],0)+1);
             }
 
             /**
              * Then, evaluate the green characters (i.e. the ones that are positionally correct)
              */
             HashSet<Character> charsThatAreGreenInThisRow = new HashSet<>();
+            HashMap<Character,Integer> charsThatAreGreenInThisRowMap = new HashMap<>();
             for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_GREEN){
                 //TODO: Get rid of magic char below
                 if(positionalLocks[j]!='\0' && positionalLocks[j]!=charRow[j]){
@@ -103,6 +109,7 @@ public class ComputationalInputs {
                 }
                 positionalLocks[j] = charRow[j];
                 charsThatAreGreenInThisRow.add(charRow[j]);
+                charsThatAreGreenInThisRowMap.put(charRow[j], charsThatAreGreenInThisRowMap.getOrDefault(charRow[j],0)+1);
 
                 /**
                  * add this to mandatoryInclusions if
@@ -122,6 +129,27 @@ public class ComputationalInputs {
                 }
                 positionalLockAlreadyCountedForMandatoryInclusions[j]=true;
             }
+
+            /**
+             * Experimental mandatoryInclusionsList
+             */
+            for(int j=0; j<charRow.length; j++){
+                charMandatoryInclusionCountMap.put(charRow[j],
+                        Math.max(
+                                charMandatoryInclusionCountMap.getOrDefault(charRow[j],0),
+                                    (charsThatAreYellowInThisRowMap.getOrDefault(charRow[j],0)+
+                                    charsThatAreGreenInThisRowMap.getOrDefault(charRow[j],0))
+                        )
+                );
+            }
+            List<Character> localMandatoryInclusions = new ArrayList<>();
+            for(char key : charMandatoryInclusionCountMap.keySet()){
+                int freq = charMandatoryInclusionCountMap.get(key);
+                while(freq-- > 0){
+                    localMandatoryInclusions.add(key);
+                }
+            }
+            mandatoryInclusions=localMandatoryInclusions;
 
             /**
              * And finally, evaluate the black characters (i.e. the ones that are not present in the final word)
@@ -164,18 +192,26 @@ public class ComputationalInputs {
     }
 
     public Set<Character>[] getPositionalExclusions() {
+//        int pos=0;
+//        for(Set<Character> s : positionalExclusions){
+//            System.out.println("Pos:"+pos+"..."+s.toString());
+//            pos++;
+//        }
         return positionalExclusions;
     }
 
     public char[] getPositionalLocks() {
+//        System.out.println("positionalLocks:"+String.valueOf(positionalLocks));
         return positionalLocks;
     }
 
     public List<Character> getMandatoryInclusions() {
+//        System.out.println("mandatoryInclusions:"+mandatoryInclusions.toString());
         return mandatoryInclusions;
     }
 
     public HashMap<Character, Integer> getMaxCharacterCount() {
+//        System.out.println("maxCharacterCount: "+maxCharacterCount.toString());
         return maxCharacterCount;
     }
 }
