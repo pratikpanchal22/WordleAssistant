@@ -1,9 +1,11 @@
 package com.pratikpanchal.wordle.hintprovider;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 //import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@DisplayName("Test: HintProvider behavior")
 public class HintProviderTest {
 
     public static final String HINT_BGBYB = "BGBYB";
@@ -32,6 +34,7 @@ public class HintProviderTest {
     public static final String WORD_ABABC = "ababc";
 
     @Test
+    @DisplayName("Test: Secret word with no repeating characters")
     public void uniqueCharsTest(){
         HintProvider hintProvider = new HintProvider(WORD_WATER);
 
@@ -41,6 +44,7 @@ public class HintProviderTest {
     }
 
     @Test
+    @DisplayName("Test: Secret word with 1 repeating character of frequency 2")
     public void repeatingChars1Test(){
         HintProvider hintProvider = new HintProvider(WORD_TASTY);
 
@@ -50,6 +54,7 @@ public class HintProviderTest {
     }
 
     @Test
+    @DisplayName("Test: Secret word with 2 repeating characters of frequency 2")
     public void repeatingChars2Test(){
         HintProvider hintProvider = new HintProvider("ababc");
 
@@ -65,6 +70,7 @@ public class HintProviderTest {
     }
 
     @Test
+    @DisplayName("Test: Hint provider initialized with secret word in all UPPER CASE")
     public void secretWordCaseMisMatchTest(){
         HintProvider hintProvider = new HintProvider(WORD_TASTY.toUpperCase());
 
@@ -74,6 +80,7 @@ public class HintProviderTest {
     }
 
     @Test
+    @DisplayName("Test: Hint provider provideHint method invoked with words in all UPPER CASE")
     public void guessedWordCaseMisMatchTest(){
         HintProvider hintProvider = new HintProvider(WORD_TASTY);
 
