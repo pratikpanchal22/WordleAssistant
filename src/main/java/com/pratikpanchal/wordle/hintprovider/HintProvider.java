@@ -6,7 +6,7 @@ public class HintProvider {
     private String secretWord;
 
     public HintProvider(String secretWord) {
-        this.secretWord = secretWord;
+        this.secretWord = secretWord.toLowerCase();
     }
 
     public String provideHint(String guessedWord){
@@ -16,6 +16,9 @@ public class HintProvider {
             throw new IllegalArgumentException("Length of guessed word (" + guessedWord +
                     ") does NOT MATCH the length of secret word ("+secretWord.length()+")");
         }
+
+        //Guessed words are always in lowercase
+        guessedWord = guessedWord.toLowerCase();
 
         char[] hint = new char[secretWord.length()];
         Arrays.fill(hint, 'B');
