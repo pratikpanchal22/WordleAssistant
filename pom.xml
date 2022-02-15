@@ -13,7 +13,16 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
+    <!-- Spring-based parent web project with default configurations to inherit into this project
+    <parent>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <version>1.4.2.RELEASE</version>
+    </parent>
+    -->
+
     <dependencies>
+        <!-- Annotations -->
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
@@ -27,6 +36,22 @@
             <version>5.8.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>2.6.3</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-parent</artifactId>
+            <version>2.6.3</version>
+            <type>pom</type>
+        </dependency>
+
 
     </dependencies>
 
