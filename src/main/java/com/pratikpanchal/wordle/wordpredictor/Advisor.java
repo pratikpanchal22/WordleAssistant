@@ -10,7 +10,21 @@ public class Advisor {
     public Advisor(List<String> words) {
         this.words = words;
         this.charPercentage = new HashMap<>();
+
+        int[] frequency = new int[26];
+        int totalChars = words.size()*words.get(0).length();
+        for(String word : words){
+            for(int i=0; i<word.length(); i++){
+                frequency[word.charAt(i)-'a']++;
+            }
+        }
+
+        for(int i=0; i<frequency.length; i++){
+            charPercentage.put((char)(i+'a'), (double)(frequency[i]*100)/totalChars);
+        }
+
         this.wordScoreMap = new HashMap<>();
+        computeScoreOfWords(words);
     }
 
     public List<String> getWordsWithAtleastKCharacterFrequency(int k){
