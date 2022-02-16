@@ -3,13 +3,19 @@ package com.pratikpanchal.wordle;//package com.example.idea;
 import com.pratikpanchal.wordle.hintprovider.HintProvider;
 import com.pratikpanchal.wordle.tools.WordImporter;
 import com.pratikpanchal.wordle.wordpredictor.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.*;
 
+@SpringBootApplication
 public class Main {
 
     public static void main(String[] args) {
 
+        SpringApplication.run(Main.class, args);
+
+        /*
         System.out.println("user directory: " + System.getProperty("user.dir"));
 
         String wordFile = "src/main/resources/wordList_5Letter.txt";
@@ -38,6 +44,7 @@ public class Main {
 
         //Create Trie
         TrieNode root = Trie.addWordsToTrie(words);
+        */
 
         /*
         //Solve automatically for all words
@@ -56,7 +63,7 @@ public class Main {
                 ComputationalInputs ci = new ComputationalInputs(ig);
                 List<String> solutions = new ComputationalEngine().compute(root, ci);
                 //System.out.println("SOLUTIONS:"+solutions);
-                String predictedWord = advisor.suggestASolution(solutions);
+                String predictedWord = new Advisor(solutions).suggestASolution(solutions);
                 //String predictedWord = new Advisor(solutions).suggestASolution(solutions);
 
                 if(predictedWord==null){
@@ -76,19 +83,29 @@ public class Main {
         System.out.println(solutionNumberOfTrialsToFreq.toString());
         */
 
+        /**
+         * trial distribution: with global Advisor
+         * {1=1, 2=143, 3=1278, 4=2085, 5=1204, 6=538, 7=261, 8=134, 9=67, 10=31, 11=11, 12=4, 13=1, 14=1}
+         * trial distribution: solution set specific Advisor
+         * {1=1, 2=143, 3=1392, 4=2234, 5=1118, 6=475, 7=216, 8=102, 9=47, 10=22, 11=7, 12=1, 13=1}
+         *
+         */
 
+        /*
         //Solve manually
         //Create new com.pratikpanchal.wordle.wordpredictor.InputGrid
         InputGrid inputGrid = new InputGrid();
-        inputGrid.addRow("arose","YBBBB");
-        inputGrid.addRow("latin","BGBBB");
-        inputGrid.addRow("gaudy","BGBBG");
-        inputGrid.addRow("campy","BGBGG");
-        inputGrid.addRow("pappy","BGGGG");
+        inputGrid.addRow("arose","BYBBY");
+        inputGrid.addRow("liver","YBBGG");
+//        inputGrid.addRow("gaudy","BGBBG");
+//        inputGrid.addRow("campy","BGBGG");
+//        inputGrid.addRow("pappy","BGGGG");
 
         ComputationalInputs computationalInputs = new ComputationalInputs(inputGrid);
 
         List<String> solution = new ComputationalEngine().compute(root, computationalInputs);
+
+        advisor = new Advisor(solution);
 
         System.out.println("\nRanked solution with scores: Total size:"+solution.size());
         System.out.println(advisor.getAllWordScoreObjects(solution).toString());
@@ -96,5 +113,6 @@ public class Main {
         List<WordScoreObject> wordScoreObjects = advisor.getWordScoreObjectsWithoutRepetitiveCharacters(solution);
         System.out.println("\nRanked solution with scores (unique characters only): Size:"+ wordScoreObjects.size());
         System.out.println(wordScoreObjects.toString());
+        */
     }
 }
