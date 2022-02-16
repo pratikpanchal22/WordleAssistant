@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -17,21 +18,19 @@ public class AsyncWordleController {
     @RequestMapping(
             value = "/solve",
             method = POST
-            //headers = "Accept=application/json"
     )
     @ResponseBody
-    public List<WordScoreObject> solve(@RequestBody List<RequestRow> requestRows){
+    public List<WordScoreObject> solve(@RequestBody Map<String,String> requestMap){
         String wordFile = "src/main/resources/wordList_5Letter.txt";
         WordImporter wi = new WordImporter();
         List<String> words = wi.importWords(wordFile);
         TrieNode root = Trie.addWordsToTrie(words);
 
-        //System.out.printf("Request:"+w.toString() + " "+ h.toString());
-        System.out.println("Post body: "+ requestRows.toString());
+        System.out.println("Post body: "+ requestMap.toString());
 
         InputGrid inputGrid = new InputGrid();
-        for(RequestRow requestRow : requestRows){
-            inputGrid.addRow(requestRow.word, requestRow.hint);
+        for(String key : requestMap.keySet()){
+            inputGrid.addRow(key, requestMap.get(key));
         }
 
         ComputationalInputs computationalInputs = new ComputationalInputs(inputGrid);
