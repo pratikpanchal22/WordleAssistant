@@ -11,6 +11,10 @@ public class Advisor {
         this.words = words;
         this.charPercentage = new HashMap<>();
 
+        if(words==null || words.size()==0){
+            return;
+        }
+
         int[] frequency = new int[26];
         int totalChars = words.size()*words.get(0).length();
         for(String word : words){
