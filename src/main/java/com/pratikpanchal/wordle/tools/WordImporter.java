@@ -30,7 +30,7 @@ public class WordImporter {
             }
             // Print the content on the console
             ++importCounter;
-            System.out.println ("Importing: " + importCounter + " word:"+ strLine);
+            //System.out.println ("Importing: " + importCounter + " word:"+ strLine);
             words.add(strLine.trim());
         }
 
@@ -41,7 +41,7 @@ public class WordImporter {
             e.printStackTrace();
         }
 
+        System.out.printf("Imported "+ importCounter + " words");
         return words;
-
     }
 }
