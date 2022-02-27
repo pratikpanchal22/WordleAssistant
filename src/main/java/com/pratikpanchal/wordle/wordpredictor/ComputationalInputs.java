@@ -1,6 +1,7 @@
 package com.pratikpanchal.wordle.wordpredictor;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class ComputationalInputs {
 
@@ -182,6 +183,64 @@ public class ComputationalInputs {
             throw new RuntimeException("mandatoryInclusions size is already 5. Trying to add "+c);
         }
         this.mandatoryInclusions.add(c);
+    }
+
+    /**
+     * @return number of positions that are locked with a known character
+     */
+    public int getNumberOfPositionalLocks(){
+        int numberOfPositionalLocks=0;
+        for(int i=0; i<positionalLocks.length; i++) if(positionalLocks[i]!='\0'){
+            ++numberOfPositionalLocks;
+        }
+        return numberOfPositionalLocks;
+    }
+
+    /**
+     *
+     * @param words list of words from which we need to extract priority characters
+     * @return list of characters that are present at indices that are not positionally locked
+     */
+    public List<Character> getListOfPriorityCharactersFromStrings(List<String> words){
+        Set<Character> set = new HashSet<>();
+
+        List<Integer> indices = new ArrayList<>();
+        for(int i=0; i<positionalLocks.length; i++) if(positionalLocks[i]=='\0'){
+            indices.add(i);
+        }
+
+        for(String word : words){
+            for(int i : indices){
+                set.add(word.charAt(i));
+            }
+        }
+        return new ArrayList<Character>(set);
+    }
+
+    /**
+     * Computes a list of character that STRICTLY EXCLUDES those that have been identified as
+     * present (yellow color or green color) in the input grid
+     * @param words - super set of the words (i.e. words from sub-Hilbert space)
+     * @return list of characters
+     */
+    public List<Character> getStrictListOfPriorityCharactersFromStrings(List<String> words){
+
+        Set<Character> lenientSet = new HashSet<>(getListOfPriorityCharactersFromStrings(words));
+
+        //further remove characters if they were seen to be yellow/green
+        for(int i=0; i<this.inputGrid.grid.size(); i++) {
+            char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
+            char[] colorRow = this.inputGrid.grid.get(i)[InputGrid.COLOR_ARRAY_IDX];
+
+            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_YELLOW ||
+                    colorRow[j]==COLOR_GREEN ||
+                    colorRow[j]==COLOR_BLACK ){
+
+                lenientSet.remove(charRow[j]);
+            }
+        }
+
+        return new ArrayList<Character>(lenientSet);
     }
 
     //////////////////////////////////////////
