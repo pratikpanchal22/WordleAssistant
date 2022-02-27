@@ -4,8 +4,18 @@ import java.util.*;
 public class Advisor {
 
     private List<String> words;
-    private HashMap<Character, Double> charPercentage;
-    private HashMap<String, Double> wordScoreMap;
+    private Map<Character, Double> charPercentage;
+    private Map<String, Double> wordScoreMap;
+    private Map<String, Double> positionalScore = new HashMap<>();
+    private Map<Character,Double>[] positionalCharScoreMap;
+
+    public Map<Character, Double>[] getPositionalCharScoreMap() {
+        return positionalCharScoreMap;
+    }
+
+    public Map<Character, Double> getCharPercentage() {
+        return charPercentage;
+    }
 
     public Advisor(List<String> words) {
         this.words = words;
@@ -29,6 +39,7 @@ public class Advisor {
 
         this.wordScoreMap = new HashMap<>();
         computeScoreOfWords(words);
+        computePositionalScoreOfWords(words);
     }
 
     public List<String> getWordsWithAtleastKCharacterFrequency(int k){
@@ -85,12 +96,17 @@ public class Advisor {
     public List<WordScoreObject> getAllWordScoreObjects(List<String> words){
         List<WordScoreObject> list = new ArrayList<>();
         for(String word : words){
-            list.add(new WordScoreObject(word, wordScoreMap.get(word)));
+            list.add(new WordScoreObject(word,
+                    wordScoreMap.get(word),
+                    positionalScore.get(word)));
         }
 
         //sort list
         Collections.sort(list, (a,b)-> {
-            return (Double.compare(b.getScore(), a.getScore()));
+            //if(a.getScore()==b.getScore()){
+                return Double.compare(b.getPositionalScore(), a.getPositionalScore());
+            //}
+            //return (Double.compare(b.getScore(), a.getScore()));
         });
 
         //Populate rank
@@ -104,12 +120,17 @@ public class Advisor {
     public List<WordScoreObject> getWordScoreObjectsWithoutRepetitiveCharacters(List<String> words){
         List<WordScoreObject> list = new ArrayList<>();
         for(String word : words) if(!wordHasRepetitiveCharacters(word)){
-            list.add(new WordScoreObject(word, wordScoreMap.get(word)));
+            list.add(new WordScoreObject(word,
+                    wordScoreMap.get(word),
+                    positionalScore.get(word)));
         }
 
         //sort list
         Collections.sort(list, (a,b)-> {
-            return (Double.compare(b.getScore(), a.getScore()));
+            //if(a.getScore()==b.getScore()){
+                return Double.compare(b.getPositionalScore(), a.getPositionalScore());
+            //}
+            //return (Double.compare(b.getScore(), a.getScore()));
         });
 
         //Populate rank
@@ -133,8 +154,11 @@ public class Advisor {
             return listOfWordScoreObjs.get(0).getWord();
         }
 
-        //no solution
         return null;
+    }
+
+    public Double getCharScore(char c){
+        return charPercentage.getOrDefault(c,0.0);
     }
 
     private boolean wordHasRepetitiveCharacters(String word){
@@ -152,6 +176,51 @@ public class Advisor {
         for(int i=0; i<words.size(); i++){
             wordScoreMap.put(words.get(i), computeScoreOfWord(words.get(i)));
         }
+    }
+
+    /**
+     * Compute the positionalScore of the give words
+     * positionalScore of a word is the sum of all the positionalScores of it's characters
+     * positionalScore of the character at the given position is defined as:
+     *               freq / number of total words
+     * where freq = number of times the character appears at that position
+     * @param words
+     */
+    private void computePositionalScoreOfWords(List<String> words){
+        /**
+         * row represents the position/index
+         * column represents the character
+         */
+        int[][] positionalCharFrequencies = new int[5][26];
+
+        for(String word : words){
+            for(int i=0; i<word.length(); i++){
+                positionalCharFrequencies[i][word.charAt(i)-'a']++;
+            }
+        }
+        positionalCharScoreMap = new HashMap[5];
+        for(int i=0; i<positionalCharScoreMap.length; i++){
+            positionalCharScoreMap[i] = new HashMap<Character,Double>();
+        }
+
+        for(int r=0; r<5; r++){
+            for(int c=0; c<26; c++){
+                positionalCharScoreMap[r].put((char)(c+'a'),
+                        ((double)positionalCharFrequencies[r][c]/(double)words.size()));
+            }
+        }
+
+        for(String word : words){
+            positionalScore.put(word, computePositionalScoreOfWord(word, positionalCharScoreMap));
+        }
+    }
+
+    private double computePositionalScoreOfWord(String word, Map<Character, Double>[] positionalCharScoreMap) {
+        double score = 0.0;
+        for(int i=0; i<word.length(); i++){
+            score+=positionalCharScoreMap[i].get(word.charAt(i));
+        }
+        return score;
     }
 
     private double computeScoreOfWord(String word){
