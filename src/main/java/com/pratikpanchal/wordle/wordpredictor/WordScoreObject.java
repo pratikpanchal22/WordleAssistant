@@ -4,6 +4,7 @@ public class WordScoreObject {
     private String word;
     private Double score;
     private Integer rank;
+    private Double positionalScore;
 
     public String getWord() {
         return word;
@@ -29,15 +30,23 @@ public class WordScoreObject {
         this.rank = rank;
     }
 
-    public WordScoreObject(String word, Double score) {
+    public Double getPositionalScore() {
+        return positionalScore;
+    }
+
+    public WordScoreObject(String word, Double score, Double positionalScore) {
         this.word = word;
         this.score = score;
+        this.positionalScore = positionalScore;
         this.rank = -1;
     }
 
     @Override
     public String toString() {
         int decimalPlaces = 4;
-        return "{'"+ word + "'," + String.format("score=%."+decimalPlaces+"f", score) + ",rank="+rank+'}';
+        return "{'"+ word + "'," +
+                String.format("score=%."+decimalPlaces+"f", score) + "'," +
+                String.format("posScore=%."+decimalPlaces+"f", positionalScore) +
+                ",rank="+rank+'}'+'\n';
     }
 }
