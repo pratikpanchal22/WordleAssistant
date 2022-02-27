@@ -71,6 +71,9 @@ function solve(json) {
 
                 document.getElementById('m1').innerHTML = msg1;
                 document.getElementById('m2').innerHTML = msg2;
+
+                //update table
+                generateTable(jsonResponse);
             } else {
                 alert("No solution exists for the given input. Please try again.");
                 return;
@@ -80,6 +83,46 @@ function solve(json) {
     xhttp.open("POST", "/solve", true);
     xhttp.setRequestHeader("Content-type", "application/json");
     xhttp.send(JSON.stringify(json));
+}
+
+function generateTable(json) {
+
+    //Create a HTML Table element.
+    var table = document.createElement("TABLE");
+    table.border = "1";
+
+    //Get the count of columns.
+    var columnCount = 3;
+
+    let headerRow = ["Word", "Score", "Rank"];
+    //Add the header row.
+    var row = table.insertRow(-1);
+    for (var i = 0; i < columnCount; i++) {
+        var headerCell = document.createElement("TH");
+        headerCell.innerHTML = headerRow[i];
+        row.appendChild(headerCell);
+    }
+
+    //Add the data rows.
+    for (var i = 0; i < json.length; i++) {
+        row = table.insertRow(-1);
+        for (var j = 0; j < columnCount; j++) {
+            var cell = row.insertCell(-1);
+            if(j==0){
+                cell.innerHTML = json[i].word;
+            }
+            else if(j==1){
+                cell.innerHTML = Math.round(json[i].score * 1000) / 1000;
+            }
+            else if(j==2){
+                cell.innerHTML = json[i].rank;
+            }
+        }
+    }
+
+    var dvTable = document.getElementById("Layer1");
+    dvTable.innerHTML = "";
+    dvTable.appendChild(table);
 }
 
 function readInputTable() {

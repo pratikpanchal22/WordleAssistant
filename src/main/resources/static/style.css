@@ -1,5 +1,6 @@
 table, td {
     border: 1px solid black;
+    margin: auto;
 }
 
 /*td:last-child {
@@ -12,11 +13,15 @@ table, td {
     width: 80%;
     padding: 2px;
     max-width: 390px;
+    border: 5px solid white;
+    border-radius: 5px;
+    text-align: center;
 }
 
 #myTable {
     width: 300px;
     table-layout: fixed;
+    margin: auto;
 }
 
 #myTable td {
