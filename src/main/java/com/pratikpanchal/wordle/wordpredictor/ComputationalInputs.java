@@ -217,6 +217,23 @@ public class ComputationalInputs {
         return new ArrayList<Character>(set);
     }
 
+    public List<Character> getSimpleStrictListOfPriorityCharacters(){
+
+        Set<Character> lenientSet = new HashSet<>();
+        for(char c='a'; c<='z'; c++){
+            lenientSet.add(c);
+        }
+
+        for(int i=0; i<this.inputGrid.grid.size(); i++) {
+            char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
+            for(int j=0; j<charRow.length; j++){
+                lenientSet.remove(charRow[j]);
+            }
+        }
+
+        return new ArrayList<Character>(lenientSet);
+    }
+
     /**
      * Computes a list of character that STRICTLY EXCLUDES those that have been identified as
      * present (yellow color or green color) in the input grid
