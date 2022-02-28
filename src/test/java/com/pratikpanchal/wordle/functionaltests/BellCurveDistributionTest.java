@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class BellCurveDistributionTest {
 
@@ -56,7 +57,7 @@ public class BellCurveDistributionTest {
                 ComputationalInputs ci = new ComputationalInputs(ig);
                 List<String> solutions = new ComputationalEngine().compute(root, ci);
                 //System.out.println("SOLUTIONS:"+solutions);
-                String predictedWord = new Advisor(solutions).suggestASolution(solutions);
+                String predictedWord = new Advisor(solutions).suggestASolution(solutions, Optional.of(0));
                 //String predictedWord = new Advisor(solutions).suggestASolution(solutions);
 
                 if(predictedWord==null){

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -37,11 +38,7 @@ public class AsyncWordleController {
         List<String> solution = new ComputationalEngine().compute(root, computationalInputs);
 
         Advisor advisor = new Advisor(solution);
-
-        List<WordScoreObject> wordScoreObjects = advisor.getWordScoreObjectsWithoutRepetitiveCharacters(solution);
-        if(wordScoreObjects.size()==0){
-            wordScoreObjects=advisor.getAllWordScoreObjects(solution);
-        }
+        List<WordScoreObject> wordScoreObjects=advisor.getAllWordScoreObjects(solution, Optional.of(0));
 
         return wordScoreObjects;
     }

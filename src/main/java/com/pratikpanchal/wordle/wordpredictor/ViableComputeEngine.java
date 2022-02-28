@@ -181,7 +181,7 @@ public class ViableComputeEngine {
 //                }
 //            }
 
-            if(pCharMap.size()>0){
+            if(pCharMap.size()>1){
                 viableStringObjectsList.add(
                         new ViableStringObject(
                                 word,
@@ -195,20 +195,16 @@ public class ViableComputeEngine {
 
         //sort the computedList
         Collections.sort(viableStringObjectsList, (n1, n2)->{
-
             if(n1.pccs==n2.pccs){
                 if(n1.upcc==n2.upcc){
-                    if(n1.npcc==n2.npcc){
-                        return Integer.compare(n1.rpcc,n2.rpcc);
+                    if(n1.rpcc==n2.rpcc){
+                        return Integer.compare(n1.npcc, n2.npcc);
                     }
-//                return Integer.compare(n2.rpcc, n1.rpcc);
-                    return Integer.compare(n1.npcc, n2.npcc);
+                    return Integer.compare(n2.rpcc, n1.rpcc);
                 }
                 return Integer.compare(n2.upcc, n1.upcc);
             }
             return Double.compare(n2.pccs,n1.pccs);
-
-
         });
     }
 }

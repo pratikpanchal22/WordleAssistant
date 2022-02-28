@@ -4,10 +4,12 @@ import com.pratikpanchal.wordle.hintprovider.HintProvider;
 import com.pratikpanchal.wordle.tools.WordImporter;
 import com.pratikpanchal.wordle.wordpredictor.*;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class SolutionSpacePruningTest {
 
@@ -20,6 +22,9 @@ public class SolutionSpacePruningTest {
 
         //Get the super set of all possible words
         List<String> words = wi.importWords(wordFile);
+
+//        Advisor advisor1 = new Advisor(words);
+//        System.out.println(advisor1.getAllWordScoreObjects(words, Optional.of(0)).toString());
 
         //Create Trie
         TrieNode root = Trie.addWordsToTrie(words);
@@ -34,11 +39,13 @@ public class SolutionSpacePruningTest {
         HashMap<Integer, Integer> posLocks2ToFreqMap = new HashMap<>();
 
         int vsoCount=0,totalCount=0;
+        int lSolved=0;
 
         int wordNumber = 0;
         for (String word : words) {
             ++wordNumber;
             String trace = ":::" + wordNumber + " Secret word: " + word + "...::";
+            String vsoTrace="";
             HintProvider hintProvider = new HintProvider(word);
             InputGrid ig = new InputGrid();
             String hint = "BBBBB";
@@ -46,6 +53,7 @@ public class SolutionSpacePruningTest {
             boolean captured = false, captured2 = false, captured3 = false;
 
             while (!hint.equals("GGGGG")) {
+
                 //This is attempt number: trial
                 ++trial;
 
@@ -53,7 +61,7 @@ public class SolutionSpacePruningTest {
                 List<String> solutions = new ComputationalEngine().compute(root, ci);
 
                 Advisor advisor = new Advisor(solutions);
-                String predictedWord = advisor.suggestASolution(solutions);
+                String predictedWord = advisor.suggestASolution(solutions, Optional.of(trial));
 
 //                    if (trial == 1) {
 //                        predictedWord = setOpeningWord;
@@ -69,6 +77,7 @@ public class SolutionSpacePruningTest {
 
                     //List<Character> priorityChars = ci.getListOfPriorityCharactersFromStrings(solutions);
                     List<Character> priorityChars = ci.getStrictListOfPriorityCharactersFromStrings(solutions);
+                    //List<Character> priorityChars = ci.getSimpleStrictListOfPriorityCharacters();
 
                     Map<Character, Double> priorityCharScoreMap = new HashMap<>();
                     for (Character c : priorityChars) {
@@ -93,10 +102,15 @@ public class SolutionSpacePruningTest {
                     }
                 }
 
+                if(trial==5 || trial==6){
+                    vsoTrace+="\nTrial: "+trial+"\n"+advisor.getAllWordScoreObjects(solutions, Optional.of(trial)).toString();
+                }
+
                 if (predictedWord == null) {
                     System.out.println("No solution found. Hint=" + hint);
                     trace += "...TERMINATED...";
-                    break;
+                    System.out.println(trace);
+                    throw new RuntimeException("Unable to solve for secret word: "+ word);
                 }
                 ++totalCount;
 
@@ -110,7 +124,12 @@ public class SolutionSpacePruningTest {
             }
 
             if (trial > 6) {
+                ++lSolved;
+//                System.out.println(vsoTrace+"\n");
                 System.out.println(trace);
+                Double failureRate = ((double) lSolved * 100) / wordNumber;
+                Double successRate = 100-failureRate;
+//                System.out.println("Unsolved=" + lSolved + " | Total=" + wordNumber + " | Failure rate=" + failureRate + " | Success Rate="+ successRate);
             }
 
             solutionNumberOfTrialsToFreq.put(trial, solutionNumberOfTrialsToFreq.getOrDefault(trial, 0) + 1);
@@ -121,13 +140,14 @@ public class SolutionSpacePruningTest {
         System.out.println("Total invocations: "+ totalCount + " vscInvocations:"+vsoCount);
 
         int solved = 0, total = 0;
-        for (int key : solutionNumberOfTrialsToFreq.keySet()) {
-            if (key <= 6) {
-                solved += solutionNumberOfTrialsToFreq.get(key);
+        for(Map.Entry<Integer,Integer> entry : solutionNumberOfTrialsToFreq.entrySet()){
+            if(entry.getKey()<=6){
+                solved += entry.getValue();
             }
-            total += solutionNumberOfTrialsToFreq.get(key);
+            total += entry.getValue();
         }
         System.out.println("Solved=" + solved + " | Total=" + total + " | Success rate=" + (((double) solved * 100) / total));
+        assertEquals(12950, solved, "Solved "+solved+" word in 6 or less trials out of "+ total+" words");
     }
 
     /**

@@ -4,6 +4,7 @@ import com.pratikpanchal.wordle.tools.WordImporter;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 public class AdvisorTest {
 
@@ -18,6 +19,6 @@ public class AdvisorTest {
         List<String> words = wi.importWords(wordFile);
 
         Advisor advisor = new Advisor(words);
-        System.out.println(advisor.getAllWordScoreObjects(words).toString());
+        System.out.println(advisor.getAllWordScoreObjects(words, Optional.of(0)).toString());
     }
 }

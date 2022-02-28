@@ -93,7 +93,7 @@ public class Advisor {
         return null;
     }
 
-    public List<WordScoreObject> getAllWordScoreObjects(List<String> words){
+    public List<WordScoreObject> getAllWordScoreObjects(List<String> words, Optional<Integer> sortConfig){
         List<WordScoreObject> list = new ArrayList<>();
         for(String word : words){
             list.add(new WordScoreObject(word,
@@ -101,13 +101,22 @@ public class Advisor {
                     positionalScore.get(word)));
         }
 
-        //sort list
-        Collections.sort(list, (a,b)-> {
-            //if(a.getScore()==b.getScore()){
-                return Double.compare(b.getPositionalScore(), a.getPositionalScore());
-            //}
-            //return (Double.compare(b.getScore(), a.getScore()));
-        });
+        switch(sortConfig.orElse(0)){
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                sortConfig1ForAttempt1(list);
+                break;
+            case 5:
+                sortConfigForAttempt5(list);
+                break;
+            case 6:
+                sortConfigForAttempt6(list);
+                break;
+            default:
+                sortConfig1ForAttempt1(list);
+        }
 
         //Populate rank
         for(int i=0; i<list.size(); i++){
@@ -117,7 +126,52 @@ public class Advisor {
         return list;
     }
 
-    public List<WordScoreObject> getWordScoreObjectsWithoutRepetitiveCharacters(List<String> words){
+    private void sortConfigForAttempt6(List<WordScoreObject> list){
+        Collections.sort(list, (a,b)->{
+            if(a.getPositionalScore()==b.getPositionalScore()){
+                if(a.getScore()==b.getScore()) {
+                    if(a.getUniqueCharacterCount()==b.getUniqueCharacterCount()){
+                        return Integer.compare(b.getRepeatCharacterCount(),a.getRepeatCharacterCount());
+                    }
+                    return Integer.compare(b.getUniqueCharacterCount(), a.getUniqueCharacterCount());
+                }
+                return Double.compare(b.getScore(), a.getScore());
+            }
+            return Double.compare(b.getPositionalScore(), a.getPositionalScore());
+        });
+    }
+
+    private void sortConfigForAttempt5(List<WordScoreObject> list){
+        Collections.sort(list, (a,b)->{
+            if(a.getScore()==b.getScore()){
+                if(a.getPositionalScore()==b.getPositionalScore()){
+                    if(a.getUniqueCharacterCount()==b.getUniqueCharacterCount()){
+                        return Integer.compare(b.getRepeatCharacterCount(),a.getRepeatCharacterCount());
+                    }
+                    return Integer.compare(b.getUniqueCharacterCount(), a.getUniqueCharacterCount());
+                }
+                return Double.compare(b.getPositionalScore(), a.getPositionalScore());
+            }
+            return Double.compare(b.getScore(), a.getScore());
+        });
+    }
+
+    private void sortConfig1ForAttempt1(List<WordScoreObject> list){
+        Collections.sort(list, (a,b)->{
+            if(a.getUniqueCharacterCount()==b.getUniqueCharacterCount()){
+                if(a.getRepeatCharacterCount()==b.getRepeatCharacterCount()){
+                    if(a.getPositionalScore()==b.getPositionalScore()){
+                        return Double.compare(b.getScore(),a.getScore());
+                    }
+                    return Double.compare(b.getPositionalScore(), a.getPositionalScore());
+                }
+                return Integer.compare(b.getRepeatCharacterCount(),a.getRepeatCharacterCount());
+            }
+            return Integer.compare(b.getUniqueCharacterCount(), a.getUniqueCharacterCount());
+        });
+    }
+
+    public List<WordScoreObject> getWordScoreObjectsWithoutRepetitiveCharacters1(List<String> words){
         List<WordScoreObject> list = new ArrayList<>();
         for(String word : words) if(!wordHasRepetitiveCharacters(word)){
             list.add(new WordScoreObject(word,
@@ -141,15 +195,15 @@ public class Advisor {
         return list;
     }
 
-    public String suggestASolution(List<String> sols){
+    public String suggestASolution(List<String> sols, Optional<Integer> configId){
         List<WordScoreObject> listOfWordScoreObjs;
 
-        listOfWordScoreObjs = getWordScoreObjectsWithoutRepetitiveCharacters(sols);
-        if(listOfWordScoreObjs.size()>0){
-            return listOfWordScoreObjs.get(0).getWord();
-        }
+//        listOfWordScoreObjs = getWordScoreObjectsWithoutRepetitiveCharacters(sols);
+//        if(listOfWordScoreObjs.size()>0){
+//            return listOfWordScoreObjs.get(0).getWord();
+//        }
 
-        listOfWordScoreObjs = getAllWordScoreObjects(sols);
+        listOfWordScoreObjs = getAllWordScoreObjects(sols, configId);
         if(listOfWordScoreObjs.size()>0){
             return listOfWordScoreObjs.get(0).getWord();
         }

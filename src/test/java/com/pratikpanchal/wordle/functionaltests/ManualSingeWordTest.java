@@ -5,6 +5,7 @@ import com.pratikpanchal.wordle.wordpredictor.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ManualSingeWordTest {
 
@@ -38,9 +39,9 @@ public class ManualSingeWordTest {
         advisor = new Advisor(solution);
 
         System.out.println("\nRanked solution with scores: Total size:"+solution.size());
-        System.out.println(advisor.getAllWordScoreObjects(solution).toString());
+        System.out.println(advisor.getAllWordScoreObjects(solution, Optional.of(0)).toString());
 
-        List<WordScoreObject> wordScoreObjects = advisor.getWordScoreObjectsWithoutRepetitiveCharacters(solution);
+        List<WordScoreObject> wordScoreObjects = advisor.getAllWordScoreObjects(solution, Optional.of(0));
         System.out.println("\nRanked solution with scores (unique characters only): Size:"+ wordScoreObjects.size());
         System.out.println(wordScoreObjects.toString());
     }
