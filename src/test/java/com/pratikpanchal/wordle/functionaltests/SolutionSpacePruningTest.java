@@ -1,8 +1,11 @@
 package com.pratikpanchal.wordle.functionaltests;
 
+import com.pratikpanchal.wordle.Main;
 import com.pratikpanchal.wordle.hintprovider.HintProvider;
 import com.pratikpanchal.wordle.tools.WordImporter;
 import com.pratikpanchal.wordle.wordpredictor.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -13,18 +16,17 @@ import java.util.Optional;
 
 public class SolutionSpacePruningTest {
 
+    private final Logger log = LogManager.getLogger(this.getClass());
+
     @Test
     public void computeEntireSet() {
-        System.out.println("user directory: " + System.getProperty("user.dir"));
+        log.info("user directory: " + System.getProperty("user.dir"));
 
         String wordFile = "src/main/resources/wordList_5Letter.txt";
         WordImporter wi = new WordImporter();
 
         //Get the super set of all possible words
         List<String> words = wi.importWords(wordFile);
-
-//        Advisor advisor1 = new Advisor(words);
-//        System.out.println(advisor1.getAllWordScoreObjects(words, Optional.of(0)).toString());
 
         //Create Trie
         TrieNode root = Trie.addWordsToTrie(words);
@@ -95,7 +97,7 @@ public class SolutionSpacePruningTest {
                      * is more than 1 (otherwise, there is no point in pruning as it won't prune anything
                      * that can already be done by choosing from the the solution set directly)
                      */
-                    //System.out.println(vsoList.toString()+"\n\n\n");
+
                     if (vsoList.size() > 0 && vsoList.get(0).getUpcc() >= 2) {
                         ++vsoCount;
                         predictedWord = vsoList.get(0).getWord();
@@ -107,9 +109,9 @@ public class SolutionSpacePruningTest {
                 }
 
                 if (predictedWord == null) {
-                    System.out.println("No solution found. Hint=" + hint);
+                    log.error("No solution found. Hint=" + hint);
                     trace += "...TERMINATED...";
-                    System.out.println(trace);
+                    log.error(trace);
                     throw new RuntimeException("Unable to solve for secret word: "+ word);
                 }
                 ++totalCount;
@@ -125,19 +127,17 @@ public class SolutionSpacePruningTest {
 
             if (trial > 6) {
                 ++lSolved;
-//                System.out.println(vsoTrace+"\n");
-                System.out.println(trace);
+                log.info(trace);
                 Double failureRate = ((double) lSolved * 100) / wordNumber;
                 Double successRate = 100-failureRate;
-//                System.out.println("Unsolved=" + lSolved + " | Total=" + wordNumber + " | Failure rate=" + failureRate + " | Success Rate="+ successRate);
+                log.info("Unsolved=" + lSolved + " | Total=" + wordNumber + " | Failure rate=" + failureRate + " | Success Rate="+ successRate);
             }
 
             solutionNumberOfTrialsToFreq.put(trial, solutionNumberOfTrialsToFreq.getOrDefault(trial, 0) + 1);
         }
-        System.out.println("\ntrial distribution");
-        System.out.println(solutionNumberOfTrialsToFreq.toString());
 
-        System.out.println("Total invocations: "+ totalCount + " vscInvocations:"+vsoCount);
+        log.info("Trial distribution: "+solutionNumberOfTrialsToFreq.toString());
+        log.info("Total invocations: "+ totalCount + " vscInvocations:"+vsoCount);
 
         int solved = 0, total = 0;
         for(Map.Entry<Integer,Integer> entry : solutionNumberOfTrialsToFreq.entrySet()){
@@ -146,7 +146,8 @@ public class SolutionSpacePruningTest {
             }
             total += entry.getValue();
         }
-        System.out.println("Solved=" + solved + " | Total=" + total + " | Success rate=" + (((double) solved * 100) / total));
+
+        log.info("Solved=" + solved + " | Total=" + total + " | Success rate=" + (((double) solved * 100) / total));
         assertEquals(12950, solved, "Solved "+solved+" word in 6 or less trials out of "+ total+" words");
     }
 
