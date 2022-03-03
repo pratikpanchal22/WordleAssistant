@@ -1,7 +1,13 @@
 package com.pratikpanchal.wordle.wordpredictor;//package com.example.idea;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Advisor {
+
+    private final Logger log = LogManager.getLogger(this.getClass());
 
     private List<String> words;
     private Map<Character, Double> charPercentage;
@@ -102,12 +108,6 @@ public class Advisor {
         }
 
         switch(sortConfig.orElse(0)){
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                sortConfig1ForAttempt1(list);
-                break;
             case 5:
                 sortConfigForAttempt5(list);
                 break;
@@ -195,15 +195,28 @@ public class Advisor {
         return list;
     }
 
-    public String suggestASolution(List<String> sols, Optional<Integer> configId){
+    public String suggestASolutionFromAllEquallyLikelySolutions(List<String> sols, Optional<Integer> attemptNumber){
+        List<WordScoreObject> wordScoreObjects = getAllWordScoreObjects(sols, attemptNumber);
+
+        Map<String,List<String>> map = new HashMap<>();
+        String filterStr = wordScoreObjects.get(0).getUniqueIdString();
+        List<WordScoreObject> canList = wordScoreObjects.stream().filter(wso->wso.getUniqueIdString().equals(filterStr)).collect(Collectors.toList());
+
+        int randomPick = (int)(Math.random()*canList.size());
+        return canList.get(randomPick).getWord();
+    }
+
+    /**
+     * Given the list of all possible solutions (strings), and the attempt number,
+     * suggests and returns the most probable solution based on the computational model
+     * @param sols: list of all possible solutions
+     * @param attemptNumber: attempt number that the suggested solutions is for
+     * @return: String: a single word out of sols that is computationally fittest
+     */
+    public String suggestASolution(List<String> sols, Optional<Integer> attemptNumber){
         List<WordScoreObject> listOfWordScoreObjs;
 
-//        listOfWordScoreObjs = getWordScoreObjectsWithoutRepetitiveCharacters(sols);
-//        if(listOfWordScoreObjs.size()>0){
-//            return listOfWordScoreObjs.get(0).getWord();
-//        }
-
-        listOfWordScoreObjs = getAllWordScoreObjects(sols, configId);
+        listOfWordScoreObjs = getAllWordScoreObjects(sols, attemptNumber);
         if(listOfWordScoreObjs.size()>0){
             return listOfWordScoreObjs.get(0).getWord();
         }
@@ -228,7 +241,7 @@ public class Advisor {
 
     private void computeScoreOfWords(List<String> words){
         for(int i=0; i<words.size(); i++){
-            wordScoreMap.put(words.get(i), computeScoreOfWord(words.get(i)));
+            wordScoreMap.put(words.get(i), computeCharFrequencyScoreOfWord(words.get(i)));
         }
     }
 
@@ -277,7 +290,7 @@ public class Advisor {
         return score;
     }
 
-    private double computeScoreOfWord(String word){
+    private double computeCharFrequencyScoreOfWord(String word){
         double score=0;
         for(int i=0; i<word.length(); i++){
             score+=charPercentage.get(word.charAt(i));

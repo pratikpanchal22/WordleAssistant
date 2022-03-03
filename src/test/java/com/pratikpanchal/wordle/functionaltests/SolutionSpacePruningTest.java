@@ -35,11 +35,6 @@ public class SolutionSpacePruningTest {
         //map: Number of trials to solve -> frequency
         HashMap<Integer, Integer> solutionNumberOfTrialsToFreq = new HashMap<>();
 
-        //map: number of trials to reach to n positionally-locked state -> frequency
-        HashMap<Integer, Integer> posLocks4ToFreqMap = new HashMap<>();
-        HashMap<Integer, Integer> posLocks3ToFreqMap = new HashMap<>();
-        HashMap<Integer, Integer> posLocks2ToFreqMap = new HashMap<>();
-
         int vsoCount=0,totalCount=0;
         int lSolved=0;
 
@@ -63,11 +58,23 @@ public class SolutionSpacePruningTest {
                 List<String> solutions = new ComputationalEngine().compute(root, ci);
 
                 Advisor advisor = new Advisor(solutions);
+
+                /**
+                 * suggestASolution picks the top wso candidate and returns it's word
+                 * This is a predictable and reproducible algorithm.
+                 */
                 String predictedWord = advisor.suggestASolution(solutions, Optional.of(trial));
 
-//                    if (trial == 1) {
-//                        predictedWord = setOpeningWord;
-//                    }
+                /**
+                 * suggestASolutionFromAllEquallyLikelySolutions randomly picks a wso that matches in
+                 * every metrics (ofcourse except the word) and returs it's word.
+                 * This leads to an algorithm whose output can't be reproduced in all cases.
+                 *
+                 * The goal of creating this method was to highlight that there are still some
+                 * metrics that are not yet explored to lead to the best predictable model.
+                 *
+                 */
+//                String predictedWord = advisor.suggestASolutionFromAllEquallyLikelySolutions(solutions, Optional.of(trial));
 
                 /**
                  * Solution Space Preemptive Pruning

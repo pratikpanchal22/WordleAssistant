@@ -8,18 +8,16 @@ public class WordScoreObject {
     private Double score;
     private Integer rank;
     private Double positionalScore;
+    private Integer uniqueCharacterCount;
+    private Integer repeatCharacterCount;
 
     public Integer getUniqueCharacterCount() {
         return uniqueCharacterCount;
     }
 
-    private Integer uniqueCharacterCount;
-
     public Integer getRepeatCharacterCount() {
         return repeatCharacterCount;
     }
-
-    private Integer repeatCharacterCount;
 
     public String getWord() {
         return word;
@@ -86,5 +84,12 @@ public class WordScoreObject {
                 " ,ucc="+uniqueCharacterCount +
                 " ,rcc="+repeatCharacterCount +
                 ",rank="+rank+'}'+'\n';
+    }
+
+    public String getUniqueIdString(){
+        return this.uniqueCharacterCount+":"
+                +this.repeatCharacterCount+":"
+                +this.positionalScore+":"
+                +this.score;
     }
 }
