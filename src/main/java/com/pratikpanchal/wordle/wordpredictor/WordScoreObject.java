@@ -56,6 +56,14 @@ public class WordScoreObject {
         computeCharMetrics();
     }
 
+    public WordScoreObject(String word){
+        this.word=word;
+        this.score= Double.valueOf(100);
+        this.positionalScore= Double.valueOf(100);
+        this.rank=1;
+        computeCharMetrics();
+    }
+
     private void computeCharMetrics(){
 
         Map<Character,Integer> map = new HashMap<>();
