@@ -44,10 +44,20 @@ function submitQuery() {
     //cloneRow();
 
     //create an AJAX request
-    solve(json);
+    solve(json, false);
 }
 
-function solve(json) {
+window.addEventListener('load', function() {
+    initialization();
+})
+
+function initialization(){
+    console.log("Initialization invoked");
+    var json = {};
+    solve(json, true);
+}
+
+function solve(json, init) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -55,7 +65,12 @@ function solve(json) {
             //document.getElementById("demo").innerHTML = this.responseText;
             jsonResponse = JSON.parse(this.responseText);
             if (jsonResponse.length > 0) {
-                cloneRow(jsonResponse[0].word);
+                if(init==true){
+                    initRow(jsonResponse[0].word);
+                }
+                else {
+                    cloneRow(jsonResponse[0].word);
+                }
 
                 //update message
                 var msg1 = "";
@@ -65,8 +80,10 @@ function solve(json) {
                     msg2 = "The most probable word '" + jsonResponse[0].word + "' has already been inserted above into a new row. If you want to proceed with the suggested word, enter that in your wordle app and duplicate the color hints provided by the game here to proceed.";
                 }
                 if (jsonResponse.length == 1) {
-                    msg1 = "There is only 1 possible solution for the given input.";
-                    msg2 = "This might be the solution to your wordle.";
+                    // msg1 = "There is only 1 possible solution for the given input.";
+                    // msg2 = "This might be the solution to your wordle.";
+                    msg1 = "The next-best guess has been fetched and populated above."
+                    msg2 = "Please use this word in your Wordle app and add the colors suggested by Wordle app to the above row."
                 }
 
                 document.getElementById('m1').innerHTML = msg1;
@@ -83,6 +100,10 @@ function solve(json) {
     xhttp.open("POST", "/solve", true);
     xhttp.setRequestHeader("Content-type", "application/json");
     xhttp.send(JSON.stringify(json));
+}
+
+function discardTheCurrentSuggestionAndRequestNew(){
+    alert("Feature not yet implemented");
 }
 
 function generateTable(json) {
@@ -196,6 +217,25 @@ function resetRadios() {
     }
 }
 
+function initRow(topSuggestedWord){
+    var suggestedWordArray = ['', '', '', '', ''];
+    if (topSuggestedWord != undefined && topSuggestedWord.length == 5) {
+        suggestedWordArray = Array.from(topSuggestedWord);
+    }
+
+    //reset row 0
+    var row0Row = document.getElementById("row0").children;
+    for (var i = 0; i < row0Row.length - 1; i++) {
+
+        console.log("row0Row:i=" + i + " " + row0Row[i].innerHTML);
+        let inputs = row0Row[i].getElementsByTagName('input');
+        inputs[0].value = suggestedWordArray[i];
+        //inputs[0].setAttribute("style", "background-color:white;");
+        inputs[0].setAttribute("style", "background-color:transparent;");
+        inputs[0].removeAttribute("style");
+    }
+}
+
 function cloneRow(topSuggestedWord) {
     var totalRows = document.getElementById("myTable").rows.length;
 
@@ -233,6 +273,8 @@ function cloneRow(topSuggestedWord) {
             child.setAttribute("background-color", "red");
             let inputs = child.getElementsByTagName('input');
             inputs[0].setAttribute("value", '\u{274C}')
+            inputs[0].setAttribute("style", "text-align:center; width: 100%; height: 100%; font-size: medium");
+            inputs[0].setAttribute("title","Delete this entry");
             inputs[0].setAttribute("onClick", "deleteRow('" + idOfNewRow + "')");
         }
     }

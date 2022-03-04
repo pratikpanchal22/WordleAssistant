@@ -10,13 +10,13 @@
     <h1>Wordle Assistant v1.0</h1>
     <table id="myTable">
         <tr id="row0">
-            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c1" maxlength="1" value="a"></td>
-            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c2" maxlength="1" value="r"></td>
-            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c3" maxlength="1" value="o"></td>
-            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c4" maxlength="1" value="s"></td>
-            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c5" maxlength="1" value="e"></td>
-            <td rowspan="2"><input onclick="submitQuery()" type="submit" value="&#128269;"
-                                   style="text-align:center; width: 100%; height: 100%"></td>
+            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c1" maxlength="1" value="?"></td>
+            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c2" maxlength="1" value="?"></td>
+            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c3" maxlength="1" value="?"></td>
+            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c4" maxlength="1" value="?"></td>
+            <td><input class="textInput" pattern="[A-Z]{1}" type="text" id="c5" maxlength="1" value="?"></td>
+            <td><input onclick="discardTheCurrentSuggestionAndRequestNew()" type="submit" value="&#8634;" title='Discard this suggestion and request a new one'
+                                   style="text-align:center; width: 100%; height: 100%; font-size: xx-large"></td>
         </tr>
 
         <tr id="colorRow">
@@ -59,6 +59,10 @@
                 <label for="c5Color2" style="background-color:orange; color:orange">Y</label><br>
                 <input type="radio" id="c5Color3" name="c5Color" value="B" onclick="checkRadio(name,value)">
                 <label for="c5Color3" style="background-color:gray; color: gray">B</label><br>
+            </td>
+            <td>
+                <input onclick="submitQuery()" type="submit" value="&#128269;" title='Fetch the next guess'
+                                   style="text-align:center; width: 100%; height: 100%; font-size: x-large">
             </td>
         </tr>
     </table>
