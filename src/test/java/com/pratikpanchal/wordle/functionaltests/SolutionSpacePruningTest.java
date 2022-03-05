@@ -155,7 +155,7 @@ public class SolutionSpacePruningTest {
         }
 
         log.info("Solved=" + solved + " | Total=" + total + " | Success rate=" + (((double) solved * 100) / total));
-        assertEquals(12950, solved, "Solved "+solved+" word in 6 or less trials out of "+ total+" words");
+        assertEquals(12951, solved, "Solved "+solved+" word in 6 or less trials out of "+ total+" words");
     }
 
     /**
