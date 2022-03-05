@@ -43,6 +43,13 @@ function submitQuery() {
     //Now, clone and add an empty row
     //cloneRow();
 
+    //add all exclusions
+    let result=[...excludedWords].join(' ');
+    json['exclusions'] = result;
+
+    //reset messageBoard
+    resetMessageBoard();
+
     //create an AJAX request
     solve(json, false);
 }
@@ -53,6 +60,10 @@ window.addEventListener('load', function() {
 
 function initialization(){
     console.log("Initialization invoked");
+
+    //reset messageBoard
+    resetMessageBoard();
+
     var json = {};
     solve(json, true);
 }
@@ -72,37 +83,25 @@ function solve(json, init) {
                 //alert("No solution exists for this. Report.");
                 return;
             }
-            if (jsonResponse.length > 0) {
-                if(init==true){
-                    initRow(jsonResponse[0].word);
-                }
-                else {
-                    cloneRow(jsonResponse[0].word);
-                }
 
-                //update message
-                var msg1 = "";
-                var msg2 = "";
-                if (jsonResponse.length > 1) {
-                    msg1 = "There are " + jsonResponse.length + " possible solutions for the given input.";
-                    msg2 = "The most probable word '" + jsonResponse[0].word + "' has already been inserted above into a new row. If you want to proceed with the suggested word, enter that in your wordle app and duplicate the color hints provided by the game here to proceed.";
-                }
-                if (jsonResponse.length == 1) {
-                    // msg1 = "There is only 1 possible solution for the given input.";
-                    // msg2 = "This might be the solution to your wordle.";
-                    msg1 = "The next-best guess has been fetched and populated above."
-                    msg2 = "Please use this word in your Wordle app and add the colors suggested by Wordle app to the above row."
-                }
-
-                document.getElementById('m1').innerHTML = msg1;
-                document.getElementById('m2').innerHTML = msg2;
-
-                //update table
-                generateTable(jsonResponse);
-            } else {
-                alert("No solution exists for the given input. Please try again.");
-                return;
+            if(init==true){
+                initRow(jsonResponse.suggestedWord);
             }
+            else {
+                cloneRow(jsonResponse.suggestedWord);
+            }
+
+            let msg = jsonResponse.solutionSetDescription +"<hr>"
+                    + jsonResponse.algorithmDescription +"<hr>"
+                    + jsonResponse.nextBestGuessDescription + "<hr>"
+                    + jsonResponse.dataSetDescription + "<hr>"
+
+            document.getElementById('m1').innerHTML = msg;
+            document.getElementById('m1').setAttribute("style", "text-align:justify;");
+            document.getElementById('m2').innerHTML = "v1";
+
+            //update table
+            //generateTable(jsonResponse);
         }
     };
     xhttp.open("POST", "/solve", true);
@@ -159,12 +158,21 @@ function discardTheCurrentSuggestionAndRequestNew(){
         delete json[word];
     }
 
-    //add all exculsions
+    //add all exclusions
     let result=[...excludedWords].join(' ');
     json['exclusions'] = result;
 
-    //alert("Feature implementation is WIP. totalRows="+totalRows +" targetRowIdx="+i + " word="+word + " json="+JSON.stringify(json));
+    //reset messageBoard
+    resetMessageBoard();
+
     solve(json, true);
+}
+
+function resetMessageBoard(){
+    document.getElementById('m1').innerHTML = "Initializing...";
+    document.getElementById('m1').setAttribute("style", "text-align:center;");
+    document.getElementById('m2').innerHTML = "Connecting to Server...";
+    document.getElementById('m2').setAttribute("style", "text-align:center;");
 }
 
 function generateTable(json) {

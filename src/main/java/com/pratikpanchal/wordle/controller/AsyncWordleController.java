@@ -1,5 +1,6 @@
 package com.pratikpanchal.wordle.controller;
 
+import com.pratikpanchal.wordle.responsefactory.AsyncWordleControllerResponseDataFactory;
 import com.pratikpanchal.wordle.tools.WordImporter;
 import com.pratikpanchal.wordle.wordpredictor.*;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +20,7 @@ public class AsyncWordleController {
             method = POST
     )
     @ResponseBody
-    public List<WordScoreObject> solve(@RequestBody Map<String,String> requestMap){
+    public AsyncWordleControllerResponseDataFactory solve(@RequestBody Map<String,String> requestMap){
         System.out.println("Post body: "+ requestMap.toString());
 
         InputGrid inputGrid = new InputGrid();
@@ -45,6 +46,14 @@ public class AsyncWordleController {
         String predictedWord = advisor.suggestASolution(solutions, Optional.of(trial));
         System.out.println(solutions.toString());
 
+        //Initialize a response object
+        AsyncWordleControllerResponseDataFactory response = new AsyncWordleControllerResponseDataFactory();
+        response.setSolutionSetDescription(solutions.size());
+        response.setAlgorithmDescription(AsyncWordleControllerResponseDataFactory.ALGORITHM_TYPE.SGE);
+        response.setDataSetDescription(words.size(), excludedWords);
+        System.out.println("excludedWords: size="+excludedWords.size()+" >"+excludedWords.toString());
+
+
         if(computationalInputs.getNumberOfPositionalLocks()>=2 && trial<=5){
             List<Character> priorityChars = computationalInputs.getStrictListOfPriorityCharactersFromStrings(solutions);
             ViableComputeEngine viableComputeEngine = new ViableComputeEngine(
@@ -56,6 +65,7 @@ public class AsyncWordleController {
 
             if (vsoList.size() > 0 && vsoList.get(0).getUpcc() >= 2) {
                 predictedWord = vsoList.get(0).getWord();
+                response.setAlgorithmDescription(AsyncWordleControllerResponseDataFactory.ALGORITHM_TYPE.SSP);
             }
         }
 
@@ -63,18 +73,21 @@ public class AsyncWordleController {
             return null;
         }
 
-        WordScoreObject wordScoreObject = new WordScoreObject(predictedWord);
-        return new ArrayList<WordScoreObject>(Arrays.asList(wordScoreObject));
+        response.setNextBestGuessDescription(predictedWord);
+
+        return response;
     }
 
     private void parseExcludedWords(String spaceSeparatedWords, Set<String> excludedWords) {
         int left=0;
         for(int i=1; i<spaceSeparatedWords.length(); i++){
             if(spaceSeparatedWords.charAt(i)==' '){
-                excludedWords.add(spaceSeparatedWords.substring(left,i).toLowerCase(Locale.ROOT));
+                excludedWords.add(spaceSeparatedWords.substring(left,i).trim().toLowerCase(Locale.ROOT));
                 left=i+1;
             }
         }
-        excludedWords.add(spaceSeparatedWords.substring(left));
+        if(spaceSeparatedWords.length()>1){
+            excludedWords.add(spaceSeparatedWords.substring(left).trim().toLowerCase(Locale.ROOT));
+        }
     }
 }
