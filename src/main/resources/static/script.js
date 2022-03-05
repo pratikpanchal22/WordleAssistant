@@ -34,7 +34,7 @@ function submitQuery() {
     //validations
 
     //Read table
-    var json = readInputTable();
+    var json = readInputTable(document.getElementById("myTable").rows.length-1);
     if (json == null) {
         return;
     }
@@ -63,7 +63,15 @@ function solve(json, init) {
         if (this.readyState == 4 && this.status == 200) {
             console.log("Response: " + this.responseText);
             //document.getElementById("demo").innerHTML = this.responseText;
-            jsonResponse = JSON.parse(this.responseText);
+            try{
+                jsonResponse = JSON.parse(this.responseText);
+            }
+            catch (err){
+                console.log("No response from server");
+                cloneRow("-----");
+                //alert("No solution exists for this. Report.");
+                return;
+            }
             if (jsonResponse.length > 0) {
                 if(init==true){
                     initRow(jsonResponse[0].word);
@@ -102,8 +110,61 @@ function solve(json, init) {
     xhttp.send(JSON.stringify(json));
 }
 
+const excludedWords = new Set();
 function discardTheCurrentSuggestionAndRequestNew(){
-    alert("Feature not yet implemented");
+
+    //add current word from row0 into excluded words
+    let word = "";
+
+    var table = document.getElementById("myTable");
+    var totalRows = document.getElementById("myTable").rows.length;
+    var i = totalRows-2;
+    var totalCols = 6;
+    for (var j = 0; j < totalCols-1; j++) {
+        var row = table.rows[i];
+        var cell = row.cells[j];
+        let inputs = cell.getElementsByTagName('input');
+
+        if (inputs[0].value === undefined || inputs[0].value.length != 1) {
+            alert("Missing data: letter not set at row:" + i + " column:" + j);
+            return null;
+        }
+
+        word += inputs[0].value;
+
+    }
+
+    if (word.length != 5) {
+        alert("word " + word + " is mal formed");
+        return null;
+    }
+
+    //replace word with question marks
+    initRow("?????");
+
+    //add word to the exclusion list
+    excludedWords.add(word);
+
+    //read input table
+    var json = readInputTable(document.getElementById("myTable").rows.length-2);
+
+    console.log("json="+JSON.stringify(json));
+
+    if(json==null){
+        json={};
+    }
+
+    //remove excluded words from json
+    for(word in excludedWords){
+        delete json[word];
+    }
+
+    //add all exculsions
+    let result=[...excludedWords].join(' ');
+    json['exclusions'] = result;
+
+    //alert("Feature implementation is WIP. totalRows="+totalRows +" targetRowIdx="+i + " word="+word + " json="+JSON.stringify(json));
+    solve(json, true);
 }
 
 function generateTable(json) {
@@ -146,14 +207,14 @@ function generateTable(json) {
     dvTable.appendChild(table);
 }
 
-function readInputTable() {
+function readInputTable(rowsToRead) {
     var table = document.getElementById("myTable");
-    var totalRows = document.getElementById("myTable").rows.length;
+    var totalRows = rowsToRead;
 
     let json = {};
 
     //iterate through all the data rows
-    for (var i = 0; i < totalRows - 1; i++) {
+    for (var i = 0; i < totalRows; i++) {
         var row = table.rows[i];
         var totalCols = row.cells.length;
         //iterate through all the columns

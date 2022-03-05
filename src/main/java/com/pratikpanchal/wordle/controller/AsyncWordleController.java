@@ -20,23 +20,30 @@ public class AsyncWordleController {
     )
     @ResponseBody
     public List<WordScoreObject> solve(@RequestBody Map<String,String> requestMap){
-        String wordFile = "src/main/resources/wordList_5Letter.txt";
-        WordImporter wi = new WordImporter();
-        List<String> words = wi.importWords(wordFile);
-        TrieNode root = Trie.addWordsToTrie(words);
-
         System.out.println("Post body: "+ requestMap.toString());
 
         InputGrid inputGrid = new InputGrid();
+        Set<String> excludedWords = new HashSet<>();
+        if(requestMap.containsKey("exclusions")){
+            parseExcludedWords(requestMap.get("exclusions"), excludedWords);
+            requestMap.remove("exclusions");
+        }
+
         for(String key : requestMap.keySet()){
             inputGrid.addRow(key, requestMap.get(key));
         }
+
+        String wordFile = "src/main/resources/wordList_5Letter.txt";
+        WordImporter wi = new WordImporter();
+        List<String> words = wi.importWords(wordFile, excludedWords);
+        TrieNode root = Trie.addWordsToTrie(words);
 
         ComputationalInputs computationalInputs = new ComputationalInputs(inputGrid);
         List<String> solutions = new ComputationalEngine().compute(root, computationalInputs);
         Advisor advisor = new Advisor(solutions);
         int trial = requestMap.size();
         String predictedWord = advisor.suggestASolution(solutions, Optional.of(trial));
+        System.out.println(solutions.toString());
 
         if(computationalInputs.getNumberOfPositionalLocks()>=2 && trial<=5){
             List<Character> priorityChars = computationalInputs.getStrictListOfPriorityCharactersFromStrings(solutions);
@@ -45,6 +52,7 @@ public class AsyncWordleController {
                     priorityChars,
                     words);
             List<ViableComputeEngine.ViableStringObject> vsoList = viableComputeEngine.getViableStringObjectsList();
+            System.out.println(vsoList.toString());
 
             if (vsoList.size() > 0 && vsoList.get(0).getUpcc() >= 2) {
                 predictedWord = vsoList.get(0).getWord();
@@ -57,5 +65,16 @@ public class AsyncWordleController {
 
         WordScoreObject wordScoreObject = new WordScoreObject(predictedWord);
         return new ArrayList<WordScoreObject>(Arrays.asList(wordScoreObject));
+    }
+
+    private void parseExcludedWords(String spaceSeparatedWords, Set<String> excludedWords) {
+        int left=0;
+        for(int i=1; i<spaceSeparatedWords.length(); i++){
+            if(spaceSeparatedWords.charAt(i)==' '){
+                excludedWords.add(spaceSeparatedWords.substring(left,i).toLowerCase(Locale.ROOT));
+                left=i+1;
+            }
+        }
+        excludedWords.add(spaceSeparatedWords.substring(left));
     }
 }
