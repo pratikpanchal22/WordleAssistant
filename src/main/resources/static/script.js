@@ -333,8 +333,9 @@ function cloneRow(topSuggestedWord) {
             child.setAttribute("rowspan", 1);
             child.setAttribute("background-color", "red");
             let inputs = child.getElementsByTagName('input');
-            inputs[0].setAttribute("value", '\u{274C}')
-            inputs[0].setAttribute("style", "text-align:center; width: 100%; height: 100%; font-size: medium");
+            // inputs[0].setAttribute("value", '\u{274C}')
+            inputs[0].setAttribute("value", '\u{232B}')
+            inputs[0].setAttribute("style", "text-align:center; width: 100%; height: 100%; font-size: large");
             inputs[0].setAttribute("title","Delete this entry");
             inputs[0].setAttribute("onClick", "deleteRow('" + idOfNewRow + "')");
         }
