@@ -10,9 +10,9 @@ table, td {
 
 #tableContainer {
     margin: auto;
-    width: 80%;
+    width: 90%;
     padding: 2px;
-    max-width: 390px;
+    max-width: 580px;
     border: 5px solid white;
     border-radius: 5px;
     text-align: center;
