@@ -69,10 +69,6 @@ public class AsyncWordleController {
             }
         }
 
-        if(predictedWord==null){
-            return null;
-        }
-
         response.setNextBestGuessDescription(predictedWord);
         log.info(response.toString());
 

@@ -165,6 +165,9 @@ function discardTheCurrentSuggestionAndRequestNew(){
     //reset messageBoard
     resetMessageBoard();
 
+    //reset radios
+    resetRadios();
+
     solve(json, true);
 }
 
@@ -305,14 +308,24 @@ function initRow(topSuggestedWord){
     }
 }
 
-function cloneRow(topSuggestedWord) {
-    var totalRows = document.getElementById("myTable").rows.length;
+function isEmpty(strValue)
+{
+    // Test whether strValue is empty
+    if (!strValue || strValue.trim() === "" || (strValue.trim()).length === 0) {
+        return true;
+    }
+    return false;
+}
 
+function cloneRow(topSuggestedWord) {
+
+    //if the input is empty/null, return
+    if(isEmpty(topSuggestedWord)){
+        return;
+    }
+
+    var totalRows = document.getElementById("myTable").rows.length;
     console.log("totalRows=" + totalRows);
-    // for(var i : totalRows){
-    //     console.log("Row:"+i);
-    //     //console.log(document.getElementById("row"+(i)).childNodes);
-    // }
 
     //copy row0 into new row
     var rowToCopy = "row0";

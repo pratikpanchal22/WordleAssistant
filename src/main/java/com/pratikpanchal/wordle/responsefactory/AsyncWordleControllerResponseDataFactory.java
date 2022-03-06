@@ -16,12 +16,16 @@ public class AsyncWordleControllerResponseDataFactory {
      * Solution Description: There are {n} potential solutions.
      */
     private static final String SSD1 = "<center><h3>There ";
+    private static final String SSD0 = "no solutions satisfying the input</h3></center>";
     private static final String SSD1A = "is only 1 possible solution.</h3></center><center><h4>This might be the soultion to your Wordle.</h4></center>";
     private static final String SSD2A = "are ";
     private static final String SSD2B = " potential solutions.</h3></center>";
     private String solutionSetDescription;
     public void setSolutionSetDescription(int solutionSetSize) {
-        if(solutionSetSize==1){
+        if(solutionSetSize==0){
+            this.solutionSetDescription = SSD1+SSD2A+SSD0;
+        }
+        else if(solutionSetSize==1){
             this.solutionSetDescription = SSD1+SSD1A;
         }
         else {
@@ -69,13 +73,21 @@ public class AsyncWordleControllerResponseDataFactory {
      * and add all the color hints provided by it by choosing the corresponding color above.
      * If your Wordle app dictionary does not contain this word, click '↺' next to it to recompute.
      */
+    private static final String NBG0 = "<b>Please verify that the input characters / colors are correct</b>";
     private static final String NBGD1 = "<b>The next best guess is '";
     private static final String NBGD2 = "'</b> and it has been auto-populated above.<br><br>Use this word in your Wordle app and add all the color hints provided by it by choosing the corresponding color above.<br>";
     private static final String NBGD3 = "<br><b>If your Wordle app dictionary does not contain this word, click '↺' next to it to recompute.</b>";
     private String nextBestGuessDescription;
     public void setNextBestGuessDescription(String nextBestGuess) {
-        this.nextBestGuessDescription = NBGD1 + nextBestGuess + NBGD2 + NBGD3;
-        this.suggestedWord = nextBestGuess;
+        if(nextBestGuess==null){
+            this.nextBestGuessDescription = NBG0;
+            this.suggestedWord="";
+        }
+        else {
+            this.nextBestGuessDescription = NBGD1 + nextBestGuess + NBGD2 + NBGD3;
+            this.suggestedWord = nextBestGuess;
+        }
+
     }
     public String getNextBestGuessDescription() {
         return nextBestGuessDescription;
