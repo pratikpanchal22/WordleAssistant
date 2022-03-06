@@ -3,6 +3,8 @@ package com.pratikpanchal.wordle.controller;
 import com.pratikpanchal.wordle.responsefactory.AsyncWordleControllerResponseDataFactory;
 import com.pratikpanchal.wordle.tools.WordImporter;
 import com.pratikpanchal.wordle.wordpredictor.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,13 +17,15 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @RestController
 public class AsyncWordleController {
 
+    private final Logger log = LogManager.getLogger(this.getClass());
+
     @RequestMapping(
             value = "/solve",
             method = POST
     )
     @ResponseBody
     public AsyncWordleControllerResponseDataFactory solve(@RequestBody Map<String,String> requestMap){
-        System.out.println("Post body: "+ requestMap.toString());
+        log.info("Post request body: "+ requestMap.toString());
 
         InputGrid inputGrid = new InputGrid();
         Set<String> excludedWords = new HashSet<>();
@@ -44,15 +48,12 @@ public class AsyncWordleController {
         Advisor advisor = new Advisor(solutions);
         int trial = requestMap.size();
         String predictedWord = advisor.suggestASolution(solutions, Optional.of(trial));
-        System.out.println(solutions.toString());
 
         //Initialize a response object
         AsyncWordleControllerResponseDataFactory response = new AsyncWordleControllerResponseDataFactory();
         response.setSolutionSetDescription(solutions.size());
         response.setAlgorithmDescription(AsyncWordleControllerResponseDataFactory.ALGORITHM_TYPE.SGE);
         response.setDataSetDescription(words.size(), excludedWords);
-        System.out.println("excludedWords: size="+excludedWords.size()+" >"+excludedWords.toString());
-
 
         if(computationalInputs.getNumberOfPositionalLocks()>=2 && trial<=5){
             List<Character> priorityChars = computationalInputs.getStrictListOfPriorityCharactersFromStrings(solutions);
@@ -61,7 +62,6 @@ public class AsyncWordleController {
                     priorityChars,
                     words);
             List<ViableComputeEngine.ViableStringObject> vsoList = viableComputeEngine.getViableStringObjectsList();
-            System.out.println(vsoList.toString());
 
             if (vsoList.size() > 0 && vsoList.get(0).getUpcc() >= 2) {
                 predictedWord = vsoList.get(0).getWord();
@@ -74,6 +74,7 @@ public class AsyncWordleController {
         }
 
         response.setNextBestGuessDescription(predictedWord);
+        log.info(response.toString());
 
         return response;
     }

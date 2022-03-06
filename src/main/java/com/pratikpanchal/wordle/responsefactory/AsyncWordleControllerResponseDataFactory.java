@@ -12,14 +12,13 @@ public class AsyncWordleControllerResponseDataFactory {
         return suggestedWord;
     }
 
-
     /**
      * Solution Description: There are {n} potential solutions.
      */
-    public static final String SSD1 = "<center><h3>There ";
-    public static final String SSD1A = "is only 1 possible solution. This might be the soultion to your Wordle.</h3></center>";
-    public static final String SSD2A = "are ";
-    public static final String SSD2B = " potential solutions.</h3></center>";
+    private static final String SSD1 = "<center><h3>There ";
+    private static final String SSD1A = "is only 1 possible solution.</h3></center><center><h4>This might be the soultion to your Wordle.</h4></center>";
+    private static final String SSD2A = "are ";
+    private static final String SSD2B = " potential solutions.</h3></center>";
     private String solutionSetDescription;
     public void setSolutionSetDescription(int solutionSetSize) {
         if(solutionSetSize==1){
@@ -28,7 +27,6 @@ public class AsyncWordleControllerResponseDataFactory {
         else {
             this.solutionSetDescription = SSD1+SSD2A+solutionSetSize+SSD2B;
         }
-
     }
     public String getSolutionSetDescription() {
         return solutionSetDescription;
@@ -48,12 +46,12 @@ public class AsyncWordleControllerResponseDataFactory {
      * Hence, this word may or may not be part of the solution set.
      */
     public enum ALGORITHM_TYPE {SSP, SGE}
-    public static final String AD1 = "<b>Algorithm: ";
-    public static final String AD_SGE1 = "Signal Guided Elimination</b><br>";
-    public static final String AD_SSP1 = "Solution Space Pruning</b><br>";
-    public static final String AD_SGE2 = "<br>This uses all the given hints to eliminate all such candidates that don't fit the conditions.<br><br>Out of these potential solutions, the one with the highest positional-score fitness is chosen as the next-best guess.<br>";
-    public static final String AD_SSP2 = "<br>This uses all the characters that are positionally unlocked in the entire solution space (computed by SGE algorithm) to form a set of viable candidates.<br><br>Out of these, the one with the highest fitness is chosen as the next-best guess.<br>";
-    public static final String AD_SSP3 = "Hence, this word <b>may or may not be part</b> of the solution set.";
+    private static final String AD1 = "<b>Algorithm: ";
+    private static final String AD_SGE1 = "Signal Guided Elimination</b><br>";
+    private static final String AD_SSP1 = "Solution Space Pruning</b><br>";
+    private static final String AD_SGE2 = "<br>This uses all the given hints to eliminate all such candidates that don't fit the conditions.<br><br>Out of these potential solutions, the one with the highest positional-score fitness is chosen as the next-best guess.<br>";
+    private static final String AD_SSP2 = "<br>This uses all the characters that are positionally unlocked in the entire solution space (computed by SGE algorithm) to form a set of viable candidates.<br><br>Out of these, the one with the highest fitness is chosen as the next-best guess.<br>";
+    private static final String AD_SSP3 = "Hence, this word <b>may or may not be part</b> of the solution set.";
     private String algorithmDescription;
     public void setAlgorithmDescription(ALGORITHM_TYPE algorithmType) {
         switch (algorithmType){
@@ -71,9 +69,9 @@ public class AsyncWordleControllerResponseDataFactory {
      * and add all the color hints provided by it by choosing the corresponding color above.
      * If your Wordle app dictionary does not contain this word, click '↺' next to it to recompute.
      */
-    public static final String NBGD1 = "<b>The next best guess is '";
-    public static final String NBGD2 = "'</b> and it has been auto-populated above.<br><br>Use this word in your Wordle app and add all the color hints provided by it by choosing the corresponding color above.<br>";
-    public static final String NBGD3 = "<br><b>If your Wordle app dictionary does not contain this word, click '↺' next to it to recompute.</b>";
+    private static final String NBGD1 = "<b>The next best guess is '";
+    private static final String NBGD2 = "'</b> and it has been auto-populated above.<br><br>Use this word in your Wordle app and add all the color hints provided by it by choosing the corresponding color above.<br>";
+    private static final String NBGD3 = "<br><b>If your Wordle app dictionary does not contain this word, click '↺' next to it to recompute.</b>";
     private String nextBestGuessDescription;
     public void setNextBestGuessDescription(String nextBestGuess) {
         this.nextBestGuessDescription = NBGD1 + nextBestGuess + NBGD2 + NBGD3;
@@ -91,12 +89,12 @@ public class AsyncWordleControllerResponseDataFactory {
      *
      * These words will be excluded from the computational models.
      */
-    public static final String DSD1 = "Data Set: There are total <b>";
-    public static final String DSD2 = "</b> words from which the guesses are selected.<br>";
-    public static final String DSD2A = "So far, you have marked the following words to be not part of your Wordle App dictionary:<br>";
-    public static final String DSD2B = "<br>Excluded words: ";
-    public static final String DSD2C = "<br><br>These words will be excluded from the computational models.";
-    public static final String DSD3A = "So far, you haven't marked any words as excluded.";
+    private static final String DSD1 = "Data Set: There are total <b>";
+    private static final String DSD2 = "</b> words from which the guesses are selected.<br>";
+    private static final String DSD2A = "So far, you have marked the following words to be not part of your Wordle App dictionary:<br>";
+    private static final String DSD2B = "<br>Excluded words: ";
+    private static final String DSD2C = "<br><br>These words will be excluded from the computational models.";
+    private static final String DSD3A = "So far, you haven't marked any words as excluded.";
     private String dataSetDescription;
     public void setDataSetDescription(int dataSetSize, Set<String> excludedWords) {
         this.dataSetDescription = DSD1+dataSetSize+DSD2;
@@ -109,5 +107,16 @@ public class AsyncWordleControllerResponseDataFactory {
     }
     public String getDataSetDescription() {
         return dataSetDescription;
+    }
+
+    @Override
+    public String toString() {
+        return "AsyncWordleControllerResponseDataFactory{" +
+                "suggestedWord='" + suggestedWord + '\'' +
+                ", solutionSetDescription='" + solutionSetDescription + '\'' +
+                ", algorithmDescription='" + algorithmDescription + '\'' +
+                ", nextBestGuessDescription='" + nextBestGuessDescription + '\'' +
+                ", dataSetDescription='" + dataSetDescription + '\'' +
+                '}';
     }
 }
