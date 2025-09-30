@@ -1,7 +1,7 @@
 package com.pratikpanchal.wordle.wordpredictor;
 
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 public class ComputationalInputs {
 
@@ -16,7 +16,7 @@ public class ComputationalInputs {
      * word
      * In Wordle, these letters appear in BLACK
      */
-    private Set<Character> globalExclusions;
+    private final Set<Character> globalExclusions;
 
     /**
      * positionalExclusions
@@ -24,18 +24,23 @@ public class ComputationalInputs {
      * EXIST at the given positions (list of indices)
      * In Wordle, these letters appear in ORANGE
      */
-    private Set<Character>[] positionalExclusions;
+    private final Set<Character>[] positionalExclusions;
     //character->list of indices where it is not supposed to be
-    private HashMap<Character, Set<Integer>> positionalExclusionMap;
+    private final HashMap<Character, Set<Integer>> positionalExclusionMap;
 
     /**
      * positionalLocks:::char[5]
      * These are the positions in which a letter is confirmed to be
      * In Wordle, these letters appear in GREEN
      */
-    private char[] positionalLocks;
-    private boolean[] positionalLockAlreadyCountedForMandatoryInclusions;
-
+    private final char[] positionalLocks;
+    private final boolean[] positionalLockAlreadyCountedForMandatoryInclusions;
+    /**
+     * maxCharacterCount:::HashMap<Character,Integer>
+     * These are maximum number of characters that could be in the final word
+     */
+    private final HashMap<Character, Integer> maxCharacterCount;
+    private final InputGrid inputGrid;
     /**
      * mandatoryInclusions:::List<Character>
      * These are the characters that are confirmed to be in the final words
@@ -43,14 +48,6 @@ public class ComputationalInputs {
      * positionalExclusions with correct frequency
      */
     private List<Character> mandatoryInclusions;
-
-    /**
-     * maxCharacterCount:::HashMap<Character,Integer>
-     * These are maximum number of characters that could be in the final word
-     */
-    private HashMap<Character,Integer> maxCharacterCount;
-
-    private InputGrid inputGrid;
 
     public ComputationalInputs(InputGrid inputGrid) {
         this.inputGrid = inputGrid;
@@ -66,121 +63,134 @@ public class ComputationalInputs {
 
         //TODO: Get rid of the magic number below;
         positionalExclusions = new HashSet[5];
-        for(int i=0; i<positionalExclusions.length; i++){
-            positionalExclusions[i]=new HashSet<>();
+        for (int i = 0; i < positionalExclusions.length; i++) {
+            positionalExclusions[i] = new HashSet<>();
         }
         positionalExclusionMap = new HashMap<>();
 
         this.generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList();
     }
 
-    private void generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList(){
+    private void generatePositionalExclusionListAndPositionalLocksAndGlobalExclusionList() {
 
         HashMap<Character, Integer> charMandatoryInclusionCountMap = new HashMap<>();
-        for(int i=0; i<this.inputGrid.grid.size(); i++){
+        for (int i = 0; i < this.inputGrid.grid.size(); i++) {
             char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
             char[] colorRow = this.inputGrid.grid.get(i)[InputGrid.COLOR_ARRAY_IDX];
 
             /**
-             * Start with evaluating the yellow characters (i.e. the ones that are positionally incorrect)
+             * Start with evaluating the yellow characters (i.e. the ones that are positionally
+             * incorrect)
              */
             HashSet<Character> charsThatAreYellowInThisRow = new HashSet<>();
-            HashMap<Character,Integer> charsThatAreYellowInThisRowMap = new HashMap<>();
-            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_YELLOW){
-                positionalExclusions[j].add(charRow[j]);
-                if(!positionalExclusionMap.containsKey(charRow[j])){
-                    positionalExclusionMap.put(charRow[j], new HashSet<>());
-                    mandatoryInclusions.add(charRow[j]);
-                }
-                positionalExclusionMap.get(charRow[j]).add(j);
+            HashMap<Character, Integer> charsThatAreYellowInThisRowMap = new HashMap<>();
+            for (int j = 0; j < charRow.length; j++)
+                if (colorRow[j] == COLOR_YELLOW) {
+                    positionalExclusions[j].add(charRow[j]);
+                    if (!positionalExclusionMap.containsKey(charRow[j])) {
+                        positionalExclusionMap.put(charRow[j], new HashSet<>());
+                        mandatoryInclusions.add(charRow[j]);
+                    }
+                    positionalExclusionMap.get(charRow[j]).add(j);
 
-                charsThatAreYellowInThisRow.add(charRow[j]);
-                charsThatAreYellowInThisRowMap.put(charRow[j], charsThatAreYellowInThisRowMap.getOrDefault(charRow[j],0)+1);
-            }
+                    charsThatAreYellowInThisRow.add(charRow[j]);
+                    charsThatAreYellowInThisRowMap.put(charRow[j],
+                            charsThatAreYellowInThisRowMap.getOrDefault(charRow[j], 0) + 1);
+                }
 
             /**
              * Then, evaluate the green characters (i.e. the ones that are positionally correct)
              */
             HashSet<Character> charsThatAreGreenInThisRow = new HashSet<>();
-            HashMap<Character,Integer> charsThatAreGreenInThisRowMap = new HashMap<>();
-            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_GREEN){
-                //TODO: Get rid of magic char below
-                if(positionalLocks[j]!='\0' && positionalLocks[j]!=charRow[j]){
-                    throw new InputMismatchException("Positional Lock is already occupied with character:"+positionalLocks[j] + " and an attempt was made to overwrite it with a new character: "+charRow[j] + " from input row:"+i+"\nOffending Input row: charRow"+Arrays.toString(charRow)+" colorRow:"+Arrays.toString(colorRow));
-                }
-                positionalLocks[j] = charRow[j];
-                charsThatAreGreenInThisRow.add(charRow[j]);
-                charsThatAreGreenInThisRowMap.put(charRow[j], charsThatAreGreenInThisRowMap.getOrDefault(charRow[j],0)+1);
+            HashMap<Character, Integer> charsThatAreGreenInThisRowMap = new HashMap<>();
+            for (int j = 0; j < charRow.length; j++)
+                if (colorRow[j] == COLOR_GREEN) {
+                    //TODO: Get rid of magic char below
+                    if (positionalLocks[j] != '\0' && positionalLocks[j] != charRow[j]) {
+                        throw new InputMismatchException("Positional Lock is already occupied " +
+                                "with character:" + positionalLocks[j] + " and an attempt was " +
+                                "made to overwrite it with a new character: " + charRow[j] + " " +
+                                "from input row:" + i + "\nOffending Input row: charRow" + Arrays.toString(charRow) + " colorRow:" + Arrays.toString(colorRow));
+                    }
+                    positionalLocks[j] = charRow[j];
+                    charsThatAreGreenInThisRow.add(charRow[j]);
+                    charsThatAreGreenInThisRowMap.put(charRow[j],
+                            charsThatAreGreenInThisRowMap.getOrDefault(charRow[j], 0) + 1);
 
-                /**
-                 * add this to mandatoryInclusions if
-                 * (1) it's not already counted, or,
-                 * (2) it's not already in mandatoryInclusions
-                 * (3) it's in mandatory inclusions and also in charsThatAreYellowInThisRow
-                 */
-                if(positionalLockAlreadyCountedForMandatoryInclusions[j]){
-                    continue;
-                }
+                    /**
+                     * add this to mandatoryInclusions if
+                     * (1) it's not already counted, or,
+                     * (2) it's not already in mandatoryInclusions
+                     * (3) it's in mandatory inclusions and also in charsThatAreYellowInThisRow
+                     */
+                    if (positionalLockAlreadyCountedForMandatoryInclusions[j]) {
+                        continue;
+                    }
 
-                if(!mandatoryInclusions.contains(charRow[j])){
-                    mandatoryInclusions.add(charRow[j]);
+                    if (!mandatoryInclusions.contains(charRow[j])) {
+                        mandatoryInclusions.add(charRow[j]);
+                    } else if (charsThatAreYellowInThisRow.contains(charRow[j])) {
+                        mandatoryInclusions.add(charRow[j]);
+                    }
+                    positionalLockAlreadyCountedForMandatoryInclusions[j] = true;
                 }
-                else if(charsThatAreYellowInThisRow.contains(charRow[j])){
-                    mandatoryInclusions.add(charRow[j]);
-                }
-                positionalLockAlreadyCountedForMandatoryInclusions[j]=true;
-            }
 
             /**
              * Experimental mandatoryInclusionsList
              */
-            for(int j=0; j<charRow.length; j++){
+            for (int j = 0; j < charRow.length; j++) {
                 charMandatoryInclusionCountMap.put(charRow[j],
                         Math.max(
-                                charMandatoryInclusionCountMap.getOrDefault(charRow[j],0),
-                                    (charsThatAreYellowInThisRowMap.getOrDefault(charRow[j],0)+
-                                    charsThatAreGreenInThisRowMap.getOrDefault(charRow[j],0))
+                                charMandatoryInclusionCountMap.getOrDefault(charRow[j], 0),
+                                (charsThatAreYellowInThisRowMap.getOrDefault(charRow[j], 0) +
+                                        charsThatAreGreenInThisRowMap.getOrDefault(charRow[j], 0))
                         )
                 );
             }
             List<Character> localMandatoryInclusions = new ArrayList<>();
-            for(char key : charMandatoryInclusionCountMap.keySet()){
+            for (char key : charMandatoryInclusionCountMap.keySet()) {
                 int freq = charMandatoryInclusionCountMap.get(key);
-                while(freq-- > 0){
+                while (freq-- > 0) {
                     localMandatoryInclusions.add(key);
                 }
             }
-            mandatoryInclusions=localMandatoryInclusions;
+            mandatoryInclusions = localMandatoryInclusions;
 
             /**
-             * And finally, evaluate the black characters (i.e. the ones that are not present in the final word)
+             * And finally, evaluate the black characters (i.e. the ones that are not present in
+             * the final word)
              */
-            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_BLACK){
-                if(!charsThatAreGreenInThisRow.contains(charRow[j]) && !charsThatAreYellowInThisRow.contains(charRow[j])){
-                    this.globalExclusions.add(charRow[j]);
-                }else {
-                    /**
-                     * if here: This character is marked as not present (black) in the final word even though
-                     * there are other instances of it that are either YELLOW or GREEN in this same row.
-                     * That means, we have found the maximum frequency of this character that is allowed in the final
-                     * word.
-                     * The maximum frequency is the frequency of this character in mandatoryInclusions list
-                     */
-                    int freq=0;
-                    for(char c : mandatoryInclusions){
-                        if(c==charRow[j]){
-                            freq++;
+            for (int j = 0; j < charRow.length; j++)
+                if (colorRow[j] == COLOR_BLACK) {
+                    if (!charsThatAreGreenInThisRow.contains(charRow[j]) && !charsThatAreYellowInThisRow.contains(charRow[j])) {
+                        this.globalExclusions.add(charRow[j]);
+                    } else {
+                        /**
+                         * if here: This character is marked as not present (black) in the final
+                         * word even though
+                         * there are other instances of it that are either YELLOW or GREEN in
+                         * this same row.
+                         * That means, we have found the maximum frequency of this character that
+                         * is allowed in the final
+                         * word.
+                         * The maximum frequency is the frequency of this character in
+                         * mandatoryInclusions list
+                         */
+                        int freq = 0;
+                        for (char c : mandatoryInclusions) {
+                            if (c == charRow[j]) {
+                                freq++;
+                            }
                         }
+                        maxCharacterCount.put(charRow[j], freq);
                     }
-                    maxCharacterCount.put(charRow[j], freq);
                 }
-            }
         }
     }
 
-    private void addToMandatoryInclusions(char c){
-        if(this.mandatoryInclusions.size()==5){
-            throw new RuntimeException("mandatoryInclusions size is already 5. Trying to add "+c);
+    private void addToMandatoryInclusions(char c) {
+        if (this.mandatoryInclusions.size() == 5) {
+            throw new RuntimeException("mandatoryInclusions size is already 5. Trying to add " + c);
         }
         this.mandatoryInclusions.add(c);
     }
@@ -188,45 +198,56 @@ public class ComputationalInputs {
     /**
      * @return number of positions that are locked with a known character
      */
-    public int getNumberOfPositionalLocks(){
-        int numberOfPositionalLocks=0;
-        for(int i=0; i<positionalLocks.length; i++) if(positionalLocks[i]!='\0'){
-            ++numberOfPositionalLocks;
-        }
+    public int getNumberOfPositionalLocks() {
+        int numberOfPositionalLocks = 0;
+        for (int i = 0; i < positionalLocks.length; i++)
+            if (positionalLocks[i] != '\0') {
+                ++numberOfPositionalLocks;
+            }
         return numberOfPositionalLocks;
     }
 
     /**
-     *
      * @param words list of words from which we need to extract priority characters
      * @return list of characters that are present at indices that are not positionally locked
      */
-    public List<Character> getListOfPriorityCharactersFromStrings(List<String> words){
-        Set<Character> set = new HashSet<>();
+//    public List<Character> getListOfPriorityCharactersFromStrings(List<String> words){
+//        Set<Character> set = new HashSet<>();
+//
+//        List<Integer> indices = new ArrayList<>();
+//        for(int i=0; i<positionalLocks.length; i++) if(positionalLocks[i]=='\0'){
+//            indices.add(i);
+//        }
+//
+//        for(String word : words){
+//            for(int i : indices){
+//                set.add(word.charAt(i));
+//            }
+//        }
+//        return new ArrayList<Character>(set);
+//    }
+    public List<Character> getListOfPriorityCharactersFromStrings(List<String> words) {
+        final Set<Character> uniqueChars = new HashSet<>();
+        final List<Integer> unlockedIndices = IntStream.range(0, positionalLocks.length)
+                .filter(i -> positionalLocks[i] == '\0')
+                .boxed()
+                .toList();
 
-        List<Integer> indices = new ArrayList<>();
-        for(int i=0; i<positionalLocks.length; i++) if(positionalLocks[i]=='\0'){
-            indices.add(i);
-        }
+        words.forEach(word -> unlockedIndices.forEach(index -> uniqueChars.add(word.charAt(index))));
 
-        for(String word : words){
-            for(int i : indices){
-                set.add(word.charAt(i));
-            }
-        }
-        return new ArrayList<Character>(set);
+        return new ArrayList<>(uniqueChars);
     }
 
-    public List<Character> getSimpleStrictListOfPriorityCharacters(){
+    public List<Character> getSimpleStrictListOfPriorityCharacters() {
 
         Set<Character> lenientSet = new HashSet<>();
-        for(char c='a'; c<='z'; c++){
+        for (char c = 'a'; c <= 'z'; c++) {
             lenientSet.add(c);
         }
 
-        for(int i=0; i<this.inputGrid.grid.size(); i++) {
+        for (int i = 0; i < this.inputGrid.grid.size(); i++) {
             char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
-            for(int j=0; j<charRow.length; j++){
+            for (int j = 0; j < charRow.length; j++) {
                 lenientSet.remove(charRow[j]);
             }
         }
@@ -237,24 +258,27 @@ public class ComputationalInputs {
     /**
      * Computes a list of character that STRICTLY EXCLUDES those that have been identified as
      * present (yellow color or green color) in the input grid
+     *
      * @param words - super set of the words (i.e. words from sub-Hilbert space)
      * @return list of characters
      */
-    public List<Character> getStrictListOfPriorityCharactersFromStrings(List<String> words){
+    public List<Character> getStrictListOfPriorityCharactersFromStrings(List<String> words) {
 
-        Set<Character> lenientSet = new HashSet<>(getListOfPriorityCharactersFromStrings(words));
+        final Set<Character> lenientSet =
+                new HashSet<>(getListOfPriorityCharactersFromStrings(words));
 
         //further remove characters if they were seen to be yellow/green
-        for(int i=0; i<this.inputGrid.grid.size(); i++) {
+        for (int i = 0; i < this.inputGrid.grid.size(); i++) {
             char[] charRow = this.inputGrid.grid.get(i)[InputGrid.CHAR_ARRAY_IDX];
             char[] colorRow = this.inputGrid.grid.get(i)[InputGrid.COLOR_ARRAY_IDX];
 
-            for(int j=0; j<charRow.length; j++) if(colorRow[j]==COLOR_YELLOW ||
-                    colorRow[j]==COLOR_GREEN ||
-                    colorRow[j]==COLOR_BLACK ){
+            for (int j = 0; j < charRow.length; j++)
+                if (colorRow[j] == COLOR_YELLOW ||
+                        colorRow[j] == COLOR_GREEN ||
+                        colorRow[j] == COLOR_BLACK) {
 
-                lenientSet.remove(charRow[j]);
-            }
+                    lenientSet.remove(charRow[j]);
+                }
         }
 
         return new ArrayList<Character>(lenientSet);
