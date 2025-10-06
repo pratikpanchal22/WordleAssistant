@@ -4,12 +4,11 @@ import com.pratikpanchal.wordle.tools.WordImporter;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 public class AdvisorTest {
 
     @Test
-    public void advisorTest1(){
+    public void advisorTest1() {
         System.out.println("user directory: " + System.getProperty("user.dir"));
 
         String wordFile = "src/main/resources/wordList_5Letter.txt";
@@ -19,6 +18,6 @@ public class AdvisorTest {
         List<String> words = wi.importWords(wordFile);
 
         Advisor advisor = new Advisor(words);
-        System.out.println(advisor.getAllWordScoreObjects(words, Optional.of(0)).toString());
+        System.out.println(advisor.getAllWordScoreObjects(words, 0).toString());
     }
 }
